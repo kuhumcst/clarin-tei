@@ -3,6 +3,65 @@ teiHeader, facsimile {
     display: none;
 }
 
+page {
+    display: block;
+    width: fit-content;
+    margin: 12px auto;
+    padding: 24px;
+    border: 1px solid #ddd;
+    box-shadow: var(--box-shadow-elevated);
+    background: #FFFCF0;
+}
+
+head {
+    display: block;
+}
+
+space {
+    width: 4ch:
+}
+
+
+[place*=right] {
+    text-align: right;
+}
+
+[place*=left] {
+    text-align: left;
+}
+
+[rend*=center],
+[place*=center] {
+    text-align: center;
+}
+
+[rend*=indent] {
+     text-indent: 2ch;
+ }
+
+[rend*=big], big {
+    font-size: 200%;
+}
+
+[rend*=bold] {
+    font-weight: bold;
+}
+
+[rend*=italic] {
+    font-style: italic;
+}
+
+[rend*=initial] {
+    border: 3px dotted black;
+    font-size: 250%;
+    min-width: 1.5ch;
+    line-height: 1;
+    text-align: center;
+    padding: 0 6px;
+    margin: 0 12px 6px 0;
+    float: left;
+}
+
 /* HTML div. */
 div {
     display: block;
@@ -33,6 +92,14 @@ figure {
   border: 1px dashed grey;
   margin: 0 0.5ch;
   vertical-align: middle;
+}
+
+/* Top-level illustrations are assumed to be bigger. */
+div > figure, div1 > figure {
+    display: block;
+    width: 20ch;
+    height: 20ch;
+    margin: 2ch auto;
 }
 
 /* HTML p. */

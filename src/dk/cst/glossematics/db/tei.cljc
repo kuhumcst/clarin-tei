@@ -223,9 +223,9 @@
   "Create Asami triples from either a `filepath` or `filename`/`content` combo."
   #?(:clj ([filepath]
            (let [file (io/file filepath)]
-             (document-triples (.getName file) (scrape-document file)))))
+             #{} #_(document-triples (.getName file) (scrape-document file)))))
   ([filename content]
-   (document-triples filename (scrape-document content))))
+   #{} #_(document-triples filename (scrape-document content))))
 
 (defn triples->entity
   "Assemble Asami `triples` into an Asami entity."

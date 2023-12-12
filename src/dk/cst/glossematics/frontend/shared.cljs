@@ -9,8 +9,6 @@
             [dk.cst.glossematics.frontend.page.index :as-alias index]
             [dk.cst.glossematics.frontend.page.search :as-alias search]
             [dk.cst.glossematics.frontend.page.reader :as-alias reader]
-            [dk.cst.glossematics.frontend.page.bibliography :as-alias bib]
-            [dk.cst.glossematics.frontend.page.encyclopedia :as-alias enc]
             [dk.cst.stucco.pattern :as stp]
             [dk.cst.glossematics.frontend.i18n :as i18n]))
 
@@ -68,12 +66,6 @@
       (.scrollIntoView top-elem true)
       (.scroll js/window 0 (+ js/window.scrollY header-height)))))
 
-(defn encyclopedia-href
-  [ref]
-  (rfe/href ::enc/page {:ref (if (str/starts-with? ref "#")
-                               (subs ref 1)
-                               ref)}))
-
 (defn search-href
   [ref]
   (rfe/href ::search/page {}
@@ -93,10 +85,6 @@
 (defn reader-href
   [document]
   (rfe/href ::reader/page {:document document}))
-
-(defn bib-href
-  [author]
-  (rfe/href ::bib/page {:author author}))
 
 (defn legal-id
   "Make sure `s` is a legal HTML id/fragment, e.g. doesn't start with a number."
@@ -176,56 +164,6 @@
   (and (= tr i18n/tr-da)
        (get sd/en-attr->da-attr v)))
 
-;; https://examples.yourdictionary.com/bibliography-examples.html
-(defn bib-line
-  "A bibliography entry as Hiccup based on `id->name` mapping and the `entry`.
-
-  Optionally, if `backlink?` is true the entry will link to the bibliography
-  section rather than the reader."
-  [id->name
-   {:keys [document/author
-           document/title
-           document/publisher
-           document/publication
-           document/place
-           document/bib-entry
-           document/pp
-           file/name]
-    :as   entry}
-   & [backlink?]]
-  (let [title'     (when title
-                     (str/replace (single title) #"\.$" ""))
-        title''    (if (and name (not backlink?))
-                     [:a {:href (reader-href name)} title']
-                     title')
-        bib-entry' (if (re-find #"[a-z]$" bib-entry)
-                     [:strong
-                      (subs bib-entry 0 (dec (count bib-entry)))
-                      [:sup (last bib-entry)]]
-                     [:strong bib-entry])]
-    [:<>
-     (when-let [author-name (handle-name id->name author)]
-       [:<> (surname-first author-name) ". "])
-     (if publication
-       [:<>
-        "\"" title'' "\". "
-        [:em (handle-name id->name publication)]]
-       [:em title''])
-     (when pp
-       [:<> ", pp. " pp])
-     (when-let [publisher-name (handle-name id->name publisher)]
-       [:<> ", " publisher-name])
-     (when-let [place-name (handle-name id->name place)]
-       [:<> ", " place-name])
-     ", "
-     (if backlink?
-       (let [href     (-> entry :document/author sd/id->author bib-href)
-             fragment (-> entry :document/year str legal-id)]
-         [:a {:href (str href "#" fragment)}
-          bib-entry'])
-       bib-entry')
-     "."]))
-
 (defn- metadata-table-val
   "Create a Hiccup representation for `v` based on `k` and the source `m`;
   names are sourced via the `search-state`."
@@ -245,10 +183,6 @@
       (if (set? v)
         (count v)
         1)
-
-      (= k :document/bib-entry)
-      [bib-line id->name m true]
-
 
       (= k :file/name)
       [:a {:href     (backend-url (str "/file/" v))

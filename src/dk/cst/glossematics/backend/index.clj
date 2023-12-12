@@ -26,29 +26,7 @@
     [:link {:rel "icon" :href (cb "/images/favicon.svg")}]
     [:link {:rel "mask-icon" :href (cb "/images/favicon.svg") :color "#a02c2c"}]
     [:link {:rel "stylesheet" :href (cb "/css/main.css")}]
-    [:link {:rel "stylesheet" :href (cb "/css/theme.css")}]
-
-    ;; These styles are used by the Simile Timeline API
-    [:link {:rel "stylesheet" :href (cb "/timeline/css/ethers.css")}]
-    [:link {:rel "stylesheet" :href (cb "/timeline/css/events.css")}]
-    [:link {:rel "stylesheet" :href (cb "/timeline/css/timeline.css")}]
-    [:link {:rel "stylesheet" :href (cb "/timeline/css/graphics.css")}]
-
-    ;; TODO: reduce these (minify, bundle, ...)
-    ;; These imports are all Simile Timeline library files.
-    [:script {:src (cb "/timeline/js/simile-ajax-bundle.js")}]
-    [:script {:src (cb "/timeline/js/timeline.js")}]
-    [:script {:src (cb "/timeline/js/band.js")}]
-    [:script {:src (cb "/timeline/js/themes.js")}]
-    [:script {:src (cb "/timeline/js/ethers.js")}]
-    [:script {:src (cb "/timeline/js/ether-painters.js")}]
-    [:script {:src (cb "/timeline/js/event-utils.js")}]
-    [:script {:src (cb "/timeline/js/labellers.js")}]
-    [:script {:src (cb "/timeline/js/sources.js")}]
-    [:script {:src (cb "/timeline/js/original-painter.js")}]
-    [:script {:src (cb "/timeline/js/overview-painter.js")}]
-    [:script {:src (cb "/timeline/js/en-labellers.js")}]]
-
+    [:link {:rel "stylesheet" :href (cb "/css/theme.css")}]]
    [:body
     [:div#app]
     [:script

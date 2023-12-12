@@ -5,7 +5,6 @@
             [dk.cst.glossematics.frontend.i18n :as i18n]
             [dk.cst.glossematics.frontend.page.search :as-alias search]
             [dk.cst.glossematics.frontend.page.reader :as-alias reader]
-            [dk.cst.glossematics.frontend.page.encyclopedia :as-alias encyclopedia]
             [dk.cst.glossematics.frontend.api :as api]
             [dk.cst.glossematics.shared :as shared]))
 
@@ -36,9 +35,8 @@
          (or title path)]])]))
 
 (def categories
-  {::encyclopedia/page ::encyclopedia
-   ::search/page       ::searches
-   ::reader/page       ::documents})
+  {::search/page ::searches
+   ::reader/page ::documents})
 
 (defn page
   []

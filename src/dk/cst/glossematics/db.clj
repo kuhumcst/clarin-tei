@@ -13,7 +13,6 @@
             [dk.cst.glossematics.db.paper :as db.paper]
             [dk.cst.glossematics.db.person :as db.person]
             [dk.cst.glossematics.db.timeline :as db.timeline]
-            [dk.cst.glossematics.db.bibliography :as db.bibliography]
             [dk.cst.glossematics.db.tei :as db.tei]))
 
 ;; Syntax errors (fixed)
@@ -158,11 +157,6 @@
   (log/info :bootstrap.asami/persisted-storage {:db (pconn db-dir)})
 
   (log-transaction! :timeline (db.timeline/timeline-entities))
-
-  ;; Bibliography
-  (log-transaction! :bib-EFJ (db.bibliography/bib-entries "EFJ bibliografi - Sheet1.csv"))
-  (log-transaction! :bib-LH (db.bibliography/bib-entries "LH bibliografi - Sheet1.csv"))
-  (log-transaction! :bib-PD (db.bibliography/bib-entries "PD bibliografi - Sheet1.csv"))
 
   ;; Search entities
   (log-transaction! :repositories sd/repositories)

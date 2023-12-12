@@ -17,6 +17,8 @@
 
              ;kuhumcst/cuphic           {:local/root "/Users/rqf595/Code/cuphic"}
              ;kuhumcst/rescope          {:local/root "/Users/rqf595/Code/rescope"}
+             kuhumcst/hiccup-tools                                     {:git/url "https://github.com/kuhumcst/hiccup-tools.git"
+                                                                        :sha     "faab278c8c5b0f18f967522b3648975e8614034f"}
              kuhumcst/pedestal-sp                                      {:git/url "https://github.com/kuhumcst/pedestal-sp.git"
                                                                         :sha     "b48fb45f86526b250545b569da48a80d5dea9ed9"}
              kuhumcst/cuphic                                           {:git/url "https://github.com/kuhumcst/cuphic.git"

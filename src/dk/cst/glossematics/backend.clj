@@ -142,7 +142,7 @@
   (if (not @sp-conf)
     (-> (example/in-home "/.glossematics/repl-conf.edn")
         (load-sp-conf!)
-        (db/bootstrap!))
+        #_(db/bootstrap!))
     (log/info :bootstrap.conf/skip true))
 
   (let [service-map (assoc (->service-map @sp-conf) ::http/join? false)]

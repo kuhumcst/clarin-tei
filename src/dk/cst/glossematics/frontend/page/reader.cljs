@@ -9,6 +9,7 @@
             [rescope.core :as rescope]
             [rescope.helpers :as helpers]
             [rescope.style :as style]
+            [dk.cst.hiccup-tools :as ht]
             [dk.cst.stucco.pattern :as pattern]
             [dk.cst.stucco.group :as group]
             [dk.cst.stucco.document :as document]
@@ -20,10 +21,6 @@
             [dk.cst.glossematics.frontend.shared :as fshared]
             [dk.cst.glossematics.static-data :as sd]
             [dk.cst.glossematics.frontend.i18n :as i18n]))
-
-;; TODO: acc-1992_0005_024_Holt_0780-final.xml - (count facs) > (count pbs)
-;; TODO: acc-1992_0005_024_Holt_0930-final.xml - rogue ">" symbol
-;; TODO: acc-1992_0005_024_Holt_0170-final.xml - facs wrong order
 
 (def tei-css
   "Styles used for TEI documents specifically. They are written in a regular CSS
@@ -60,6 +57,55 @@
     (if da?
       (str "Vis mere om " (type->s type "dette"))
       (str "Show more about " (type->s type "this")))))
+
+
+(def simplify-c
+  (cup/->transformer
+    '[:c {} ???]
+
+    (fn [m]
+      (let [[tag attr content] (:source (meta m))]
+        (or content " ")))))
+
+(def simplify-w
+  (cup/->transformer
+    '[:w {} ???]
+
+    (fn [m]
+      (let [[tag attr & content] (:source (meta m))]
+        (if (every? string? content)
+          (apply str content)
+          (into [:span] content))))))
+
+(defn merge-strings*
+  [coll]
+  (loop [ret  []
+         [x & coll] coll
+         strs []]
+    (cond
+      (string? x)
+      (recur ret coll (conj strs x))
+
+      (some? x)
+      (if (not-empty strs)
+        (recur (into ret [(apply str strs) x]) coll [])
+        (recur (conj ret x) coll strs))
+
+      (nil? x)
+      (if (not-empty strs)
+        (conj ret (apply str strs))
+        ret))))
+
+(def merge-strings
+  (cup/->transformer
+    '[_ {} ???]
+
+    (fn [m]
+      (let [[tag attr & content] (:source (meta m))]
+        (into [tag attr] (merge-strings* content))))))
+
+(def lb-as-br
+  (cup/->transformer '[:lb] '[:br]))
 
 (def list-as-ul
   (cup/->transformer
@@ -102,88 +148,6 @@
   (and (vector? x)
        (= :pb (first x))))
 
-(def inlined-pbs
-  "In certain cases, <pb> tags don't appear at the same level as <p> tags, but
-  rather nested inside them. This transformer splits those <p> tags into
-  multiple tags and interleaves with the formerly nested <pb> tags."
-  (cup/->transformer
-    (fn [hv]
-      (when (= :p (first hv))
-        (let [partitions (partition-by pb? (drop 2 hv))]
-          (when (> (count partitions) 1)
-            {:p-attr     (second hv)
-             :partitions partitions}))))
-
-    (fn [{:keys [p-attr partitions]}]
-      ;; TODO: use proper order, e.g. 1, 2, 3, ...
-      ;; Add some semi-random extra numbers to new paragraph IDs
-      (map-indexed (fn [n partition]
-                     (if (and (vector? (first partition))
-                              (= :pb (ffirst partition)))
-                       (first partition)
-                       (into [:p (update p-attr :xml/id #(str % "-" n))]
-                             partition)))
-                   partitions))))
-
-(defn- fix-rogue-content
-  "In some TEI documents, a <PB> tag doesn't always figure as the first element
-  inside the <DIV>, so this helper function ensures that any rogue opening
-  section is placed inside the first *real* content section after the <PB>."
-  [sections]
-  (if (pb? (ffirst sections))
-    sections
-    (let [[rogue-content pb page] sections]
-      (into [pb (concat rogue-content page)] (drop 3 sections)))))
-
-
-;; e.g. acc-1992_0005_032_Uldall_1000-tei-final.xml
-;;      acc-1992_0005_032_Uldall_0830-tei-final.xml
-;;      acc-1992_0005_034_Uldall_1180-tei-final.xml
-(defn- flatten-div
-  "Flatten divs at the top level, pulling the content inside the input `div`.
-
-  In some TEI documents, there is <div> inserted as a containing element inside
-  primary the document <div>. The contents of this div is pulled out and placed
-  inside the parent <div>."
-  [div]
-  (reduce (fn [result x]
-            (if (and (vector? x)
-                     (= (first x) :div))
-              (into result (drop 2 x))                      ; removing :div + {}
-              (conj result x)))
-          []
-          div))
-
-(defn- flatten-notes
-  "Given a polymorphic coll of `notes` return a coll of single note elements.
-
-  This function is needed to deal with the messy situation caused by TEI files
-  compiled by hand, where trailing notes are written rather inconsistently."
-  [notes]
-  (mapcat (fn [[tag attr & content :as item]]
-            (case tag
-              :div content
-              :note [item]
-              nil))
-          notes))
-
-(defn- with-target
-  "Return a predicate that returns true if the note is in the target `document`.
-  Note that notes without a specific target document also return true!"
-  [document]
-  (fn [[tag {:keys [target]}]]
-    (if target
-      (= (db.tei/fix-facsimile-id target) document)
-      true)))
-
-(defn collect-notes
-  "Put `notes` in a single container, filtering them by `document`."
-  [document notes]
-  (let [notes (->> (flatten-notes notes)
-                   (filter (with-target document)))]
-    (when (not-empty notes)
-      (into [:div {:type "notes"}] notes))))
-
 (declare inner-stage)
 
 ;; Unlike the 'outer-stage', the 'inner-stage' transformations can be safely
@@ -198,6 +162,7 @@
     (when (not= (map first kvs) (map first old-kvs))
       (reset! carousel-state {:i 0 :kvs kvs}))))
 
+;; TODO: needed?
 (defn- entity-aware
   "Apply `entity` metadata knowledge to the Hiccup `container` element."
   [{:keys [document/condition] :as entity} container]
@@ -210,6 +175,25 @@
       ;; marked directly in the container element.
       handwritten? (assoc-in [1 :rend] "handwritten"))))
 
+(defn paginate
+  "Paginate the following `nodes` every time (pred node) is true for `pred`."
+  [pred nodes]
+  (->> (drop-while (complement pred) nodes)                 ; pre-page content
+       (reduce
+         (fn [pages node]
+           (if (pred node)
+             (conj pages [:page node])
+             (update pages (dec (count pages)) conj node)))
+         [])))
+
+(defn body->pages
+  "Divide the Hiccup `body` into pages for every [:pb]."
+  [body]
+  (->> (ht/split-hiccup pb? body :retain :between)
+       (ht/node-children)
+       (drop-while (complement pb?))
+       (paginate pb?)))
+
 ;; Fairly complex transformer that restructures sibling-level page content into
 ;; a stucco carousel component. The large amount of content captured as page
 ;; content has to be explicitly rewritten in a separate call; otherwise, it will
@@ -220,25 +204,11 @@
   (cup/->transformer
     '[:body (... content)]
 
-    (fn [{:syms [content]}]
-      (let [notes        #{"note" "notes"}                  ; both are in use...
-            not-notes?   (comp (complement notes) :type second)
-            [divs notes] (split-with not-notes? content)
-            divs         (if (= (count divs) 1)
-                           [(flatten-div (first divs))]
-                           divs)
-            divs-content (apply concat (map #(subvec % 2) divs))
-            pages        (->> (partition-by pb? divs-content)
-                              (fix-rogue-content)
-                              (partition 2)
-                              (map (partial apply concat)))
-            pp           (count pages)
-            container    (entity-aware entity (subvec (first divs) 0 2))
-            kvs          (for [[[_ {:keys [n facs]}] :as page] pages]
-                           (let [notes*     (collect-notes facs notes)
-                                 page+notes (concat page [notes*])]
-                             [(str "Side " n " af " pp "; facs. " facs ".")
-                              (rewrite-page (into container page+notes))]))]
+    (fn [m]
+      (let [pages (body->pages (:source (meta m)))
+            kvs   (for [[_ [_ {:keys [n facs]}] :as page] pages]
+                    [(str "Side " n "; facs. " facs ".")
+                     (rewrite-page page)])]
         ;; Currently, TEI data is updated on the page by way of a side-effect.
         ;; I'm unsure if there is a better way to do this.
         (update-tei-carousel! state/tei-carousel kvs)
@@ -269,12 +239,17 @@
 
 (def pre-stage
   "Makes actual structural changes to the TEI content."
-  {:transformers [inlined-pbs]})
+  {:transformers [simplify-c
+                  simplify-w]})
+
+(def merge-stage
+  {:transformers [merge-strings]})
 
 (def inner-stage
   "Makes virtual changes to TEI document features using the shadow DOM."
-  {:transformers [ref-as-anchor
-                  language-as-anchor
+  {:transformers [#_ref-as-anchor
+                  #_language-as-anchor
+                  lb-as-br
                   list-as-ul
                   date-as-time]
    :wrapper      shadow-dom-wrapper
@@ -333,7 +308,7 @@
           facs             (->> (normalize-facs (:document/facsimile entity))
                                 (mapv (partial facs-id->facs-page tr)))
           outer-stage      (->outer-stage entity)
-          rewritten-hiccup (cup/rewrite raw-hiccup pre-stage outer-stage)
+          rewritten-hiccup (cup/rewrite raw-hiccup pre-stage merge-stage outer-stage)
           tei-kvs          (:kvs @state/tei-carousel)
           missing-count    (- (count facs) (count tei-kvs))
           placeholder      (tr ::placeholder)]

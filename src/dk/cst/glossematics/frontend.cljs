@@ -15,15 +15,11 @@
             [dk.cst.glossematics.frontend.state :as state :refer [db]]
             [dk.cst.glossematics.frontend.api :as api]
             [dk.cst.glossematics.frontend.page.main :as main]
-            [dk.cst.glossematics.frontend.page.topics.tol-lectures :as tol-lectures]
             [dk.cst.glossematics.frontend.page.privacy :as privacy]
             [dk.cst.glossematics.frontend.page.search :as search]
-            [dk.cst.glossematics.frontend.page.bibliography :as bibliography]
             [dk.cst.glossematics.frontend.page.bookmarks :as bookmarks]
             [dk.cst.glossematics.frontend.page.index :as index]
-            [dk.cst.glossematics.frontend.page.reader :as reader]
-            [dk.cst.glossematics.frontend.page.encyclopedia :as encyclopedia]
-            [dk.cst.glossematics.frontend.page.timeline :as timeline]))
+            [dk.cst.glossematics.frontend.page.reader :as reader]))
 
 (def routes
   [["/app"
@@ -34,15 +30,6 @@
     {:name  ::privacy/page
      :title ::privacy
      :page  privacy/page}]
-   ["/app/tol-lectures"
-    {:name  ::tol-lectures/page
-     :title ::tol-lectures
-     :page  tol-lectures/page}]
-   ["/app/encyclopedia/:ref"
-    {:name  ::encyclopedia/page
-     :title ::encyclopedia
-     :page  encyclopedia/page
-     :prep  #(prn 'encyclopedia @state/location)}]
    ["/app/search"
     {:name  ::search/page
      :title search/page-title
@@ -52,17 +39,6 @@
                    (do
                      (search/?query-reset!)
                      (fshared/set-title! (search/page-title)))))}]
-   ["/app/bibliography/:author"
-    {:name  ::bibliography/page
-     :title (fn [m]
-              (str
-                ((i18n/->tr) ::bibliography) ": "
-                ({"lh"  "Hjelmslev"
-                  "efj" "Fischer-Jørgensen"
-                  "pd"  "Diderichsen"}
-                 (get-in m [:path-params :author]))))
-     :page  bibliography/page
-     :prep  #(bibliography/fetch-results!)}]
    ["/app/bookmarks"
     {:name  ::bookmarks/page
      :title ::bookmarks
@@ -82,12 +58,7 @@
     {:name  ::reader/page
      :title (fn [m]
               (get-in m [:path-params :document]))
-     :page  reader/page}]
-   ["/app/timeline"
-    {:name  ::timeline/page
-     :title ::timeline
-     :page  timeline/page
-     :prep  timeline/fetch-timeline-data!}]])
+     :page  reader/page}]])
 
 ;; TODO: remove...?
 (defn debug-view
@@ -131,9 +102,8 @@
   (let [{:keys [page name]} (:data @state/location)
         authenticated? @state/authenticated?
         fetching?      (not-empty @state/fetches)
-        timeline?      (= name ::timeline/page)
         reader?        (= name ::reader/page)
-        compact?       (or timeline? @state/compact #_reader?)
+        compact?       @state/compact
         tr             (i18n/->tr)
         bookmarks      @state/bookmarks
         user           (shared/assertions->user-id state/assertions)
@@ -143,9 +113,7 @@
     [:div#shell {:class [(when fetching?
                            "fetching")
                          (when compact?
-                           "compact")
-                         (when timeline?
-                           "timeline")]}
+                           "compact")]}
      [:header
       [:h1
        [:a {:href  (href ::main/page)
@@ -159,24 +127,17 @@
                                             (fshared/location->page-title)
                                             (fshared/set-title!))))}
         (tr ::language-flag)]]
-      [:div.toggle-compact (when-not timeline?
-                             {:style    {:cursor (if @state/compact
-                                                   "s-resize"
-                                                   "n-resize")}
-                              :on-click (fn [e]
-                                          (swap! state/compact not))})]
+      [:div.toggle-compact {:style    {:cursor (if @state/compact
+                                                 "s-resize"
+                                                 "n-resize")}
+                            :on-click (fn [e]
+                                        (swap! state/compact not))}]
       [:nav
        [:a {:href      (href ::search/page)
             :title     (tr ::search-caption)
             :tab-index (if authenticated? "0" "-1")         ; for accessibility
             :disabled  (not authenticated?)}
         (mark-first (tr ::search))]
-       [:a {:href  (href ::timeline/page)
-            :title (tr ::timeline-caption)}
-        (mark-first (tr ::timeline))]
-       [:a {:href  (href ::bibliography/page {:author "lh"})
-            :title (tr ::bibliography-caption)}
-        (mark-first (tr ::bibliography))]
        [:input.bookmark {:type      "checkbox"
                          :disabled  (not authenticated?)
                          :checked   (boolean bookmark)
@@ -194,19 +155,18 @@
       (if page
         [page]
         [tr ::unknown-page])]
-     (when-not timeline?
-       [:footer
-        [:section.links
-         [:a {:href "https://www.was.digst.dk/glossematics-dk"}
-          (mark-first (tr ::a11y))]
-         [:span " / "]
-         [:a {:href "/app/privacy"}
-          (mark-first (tr ::privacy))]
-         [:span " / "]
-         [:a {:href "https://github.com/kuhumcst/glossematics"}
-          (mark-first "Github")]]
-        [:section.links
-         [tr ::copyright]]])]))
+     [:footer
+      [:section.links
+       [:a {:href "https://www.was.digst.dk/glossematics-dk"}
+        (mark-first (tr ::a11y))]
+       [:span " / "]
+       [:a {:href "/app/privacy"}
+        (mark-first (tr ::privacy))]
+       [:span " / "]
+       [:a {:href "https://github.com/kuhumcst/glossematics"}
+        (mark-first "Github")]]
+      [:section.links
+       [tr ::copyright]]]]))
 
 (defn fetch-bookmarks!
   "Fetches and post-processes metadata used to populate the search form."
