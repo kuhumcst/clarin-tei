@@ -148,6 +148,16 @@
   (and (vector? x)
        (= :pb (first x))))
 
+(defn- cb?
+  [x]
+  (and (vector? x)
+       (= :cb (first x))))
+
+(defn- fw?
+  [x]
+  (and (vector? x)
+       (= :fw (first x))))
+
 (declare inner-stage)
 
 ;; Unlike the 'outer-stage', the 'inner-stage' transformations can be safely
@@ -170,19 +180,19 @@
                           (not (get condition "typed")))]
     (cond-> container
 
-      ;; Fully handwritten documents are *NOT* marked as such in the text body,
-      ;; but rather in the document header, so that knowledge needs to be
-      ;; marked directly in the container element.
-      handwritten? (assoc-in [1 :rend] "handwritten"))))
+            ;; Fully handwritten documents are *NOT* marked as such in the text body,
+            ;; but rather in the document header, so that knowledge needs to be
+            ;; marked directly in the container element.
+            handwritten? (assoc-in [1 :rend] "handwritten"))))
 
 (defn paginate
   "Paginate the following `nodes` every time (pred node) is true for `pred`."
-  [pred nodes]
+  [pred container nodes]
   (->> (drop-while (complement pred) nodes)                 ; pre-page content
        (reduce
          (fn [pages node]
            (if (pred node)
-             (conj pages [:page node])
+             (conj pages (conj container node))
              (update pages (dec (count pages)) conj node)))
          [])))
 
@@ -192,7 +202,37 @@
   (->> (ht/split-hiccup pb? body :retain :between)
        (ht/node-children)
        (drop-while (complement pb?))
-       (paginate pb?)))
+       (paginate pb? [:page])))
+
+(defn with-columns
+  "If the `page` contains any columns marked with <cb>, it will be structurally
+  altered to reflect this fact."
+  [[page-tag pb & content :as page]]
+  (let [page' (into [page-tag] content)
+        split (ht/split-hiccup cb? page' :retain :between)]
+    (if (= page' (ht/split-hiccup cb? page' :retain :between))
+      page
+      (let [[pre-column column-content] (->> (ht/node-children split)
+                                             (split-with (complement cb?)))
+            columns      (paginate cb? [:column] column-content)
+            last-column' (ht/cut fw? (last columns))
+            matches      (:matches (meta last-column'))]
+
+        ;; Any pre-column (i.e. non-column) content is always added first.
+        (cond-> (into [page-tag pb] pre-column)
+
+                ;; If the page has columns, these are inserted, but with any
+                ;; potential <fw> elements removed from the final column.
+                column-content
+                (conj (into [:columns] (if matches
+                                         (conj (butlast columns)
+                                               (with-meta last-column' {}))
+                                         columns)))
+
+                ;; Any <fw> elements found in the final comment are added as
+                ;; post-column content.
+                matches
+                (into matches))))))
 
 ;; Fairly complex transformer that restructures sibling-level page content into
 ;; a stucco carousel component. The large amount of content captured as page
@@ -205,7 +245,7 @@
     '[:body (... content)]
 
     (fn [m]
-      (let [pages (body->pages (:source (meta m)))
+      (let [pages (map with-columns (body->pages (:source (meta m))))
             kvs   (for [[_ [_ {:keys [n facs]}] :as page] pages]
                     [(str "Side " n "; facs. " facs ".")
                      (rewrite-page page)])]

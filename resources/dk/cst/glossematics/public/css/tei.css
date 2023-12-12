@@ -11,6 +11,17 @@ page {
     border: 1px solid #ddd;
     box-shadow: var(--box-shadow-elevated);
     background: #FFFCF0;
+    line-height: 1.2;
+}
+
+columns {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+}
+
+p[rend*=indent] {
+    margin: 0;
 }
 
 head {
@@ -52,7 +63,7 @@ space {
 }
 
 [rend*=initial] {
-    border: 3px dotted black;
+    border: 3px double black;
     font-size: 250%;
     min-width: 1.5ch;
     line-height: 1;
@@ -89,7 +100,7 @@ figure {
   display: inline-block;
   width: 1ch;
   height: 1ch;
-  border: 1px dashed grey;
+  border: 3px double black;
   margin: 0 0.5ch;
   vertical-align: middle;
 }
@@ -97,9 +108,9 @@ figure {
 /* Top-level illustrations are assumed to be bigger. */
 div > figure, div1 > figure {
     display: block;
-    width: 20ch;
-    height: 20ch;
-    margin: 2ch auto;
+    width: 8ch;
+    height: 4ch;
+    margin: 1ch auto;
 }
 
 /* HTML p. */
