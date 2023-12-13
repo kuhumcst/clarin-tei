@@ -12,6 +12,12 @@
   #?(:clj (:import [java.time.temporal ChronoField]
                    [java.time.format DateTimeFormatterBuilder])))
 
+;; For some reason, the Clarin TEI files contain extra (invalid) declarations
+;; which completely break parsing in the browser.
+(defn- remove-oxygen-declaration
+  [xml]
+  (str/replace xml #"<\?oxygen .+\?>\s?" ""))
+
 (def utc-dtf'
   "NOTE: Defaults to 1 january in case either is missing."
   #?(:clj  (-> (DateTimeFormatterBuilder.)
@@ -25,8 +31,11 @@
 ;; TODO: the ... pattern not working correctly in Cuphic?
 (def header-patterns
   {:language      '[:language {:ident language} ???]
-   :title         '[:title {} title]
-   :author        '[:author {:ref author} ???]
+   :title         '[:titleStmt {} [:title {} title] ???]
+   :notes         '[:notesStmt {} [:note notes]]
+   :date          '[:creation [:date {:when date}]]
+
+   :author        '[:author [:name {:ref author} author-name]]
    :place         '[:msIdentifier {}
                     [:placeName {:ref place} _]
                     ???]
@@ -55,29 +64,20 @@
    :recipient-loc '[:correspAction {:type "received"}
                     ??? [:placeName {:ref recipient-loc}] ???]})
 
-(def facsimile-patterns
-  {:facsimile '[:graphic {:xml/id id}]})
-
 (def text-patterns
-  {:body-refs  '[tag {:ref  ref
-                      :type ?type} ???]
-   :lang-refs  '[:note {:type "language"
-                        :n    ref} ???]
-   :body-dates '[:date {:when when} ???]})
+  {:facsimile '[:pb {:facs facs}]})
 
 (defn scrape-document
   [xml]
-  (let [hiccup    (xml/parse xml)
-        header    (nth hiccup 2)
-        facsimile (nth hiccup 3)
-        text      (nth hiccup 4)]
+  (let [hiccup (xml/parse xml)
+        header (nth hiccup 2)
+        text   (nth hiccup 3)]
     (merge
       (cup/scrape header header-patterns)
-      (cup/scrape facsimile facsimile-patterns)
       (cup/scrape text text-patterns))))
 
 (def placeholder?
-  #{"xx" "#xx" "NA"})
+  #{"n/a" "#n/a" "0"})
 
 (defn valid?
   [s]
@@ -150,20 +150,8 @@
     (log/info :tei/unsupported {:document/condition v})))
 
 (defn document-triples
-  [filename {:keys [object-desc
-                    hand-desc
-                    ms-desc
-                    facsimile
-                    relevant-for
-                    language
-                    body-refs
-                    lang-refs
-                    body-dates]
-             :as   result}]
-  (let [triple    (partial single-triple result filename)
-        id-triple (comp
-                    (fn [[e a v :as eav]] (when eav [e a (fix-id v)]))
-                    (partial single-triple result filename valid-id?))]
+  [filename {:keys [facsimile] :as result}]
+  (let [triple (partial single-triple result filename)]
     (disj
       (reduce
         into
@@ -171,61 +159,22 @@
           conj
           #{}
           [(triple valid? :document/title :title)
-           (id-triple :document/author :author)
-           (id-triple :document/archive :repository)
-           (id-triple :document/sender :sender)
-           (id-triple :document/sender-location :sender-loc)
-           (id-triple :document/recipient :recipient)
-           (id-triple :document/recipient-location :recipient-loc)
-           ;; Unfortunately, some documents use settlement & others use place...
-           (id-triple :document/place :settlement)
-           (id-triple :document/place :place)
-           (when-let [ref (language-ref (get-in language [0 'language]))]
-             [filename :document/language ref])
-           (when-let [sent-at (triple valid-date? :document/sent-at :sent-at)]
-             (update sent-at 2 (partial shared/parse-date utc-dtf')))
-           (let [collection (triple valid? :document/collection :collection)]
-             (when (not-empty (last collection))
-               collection))
-           (when-let [v (get-in object-desc [0 'form])]
-             (if (get (-> sd/special-entity-types :document/condition :en->da) v)
-               [filename :document/condition v]
-               (log/info :tei/unsupported {:document/condition v})))
-           (when-let [v (get-in ms-desc [0 'publish-state])]
-             (when (get #{"published" "unpublished" "draft"} v)
-               [filename :document/condition v]))])
-        [(when-let [v (get-in object-desc [0 'support])]
-           (->> (str/split v #"\s+and\s+")                  ; support multiple
-                (map #(if (= % "copy") "photocopy" %))
-                (map #(support-triple filename %))))
-         (for [{:syms [target]} relevant-for]
-           [filename :document/relevant target])
-         (for [{:syms [id]} facsimile]
-           [filename :document/facsimile (fix-facsimile-id id)])
-         (when-let [hands (get-in hand-desc [0 'hand])]
-           (for [hand (->> (str/split hands #"\s+and\s+")
-                           (map str/trim)
-                           (filter (-> sd/special-entity-types
-                                       :document/condition
-                                       :en->da)))]
-             [filename :document/condition hand]))
-         (for [{:syms [when]} body-dates]
-           [filename :document/date-mention (shared/parse-date utc-dtf' when)])
-         (for [{:syms [tag ref ?type]} body-refs]
-           (when (valid-id? ref)
-             [filename :document/mention ref]))
-         (for [{:syms [ref]} lang-refs]
-           (when (valid-id? ref)
-             [filename :document/mention ref]))])
+           (triple valid? :document/language :language)
+           (triple valid? :document/notes :notes)
+           (triple valid? :document/date :date)
+           (triple valid? :document/author :author)])
+        [(for [{:syms [facs]} facsimile]
+           [filename :document/facsimile facs])])
       nil)))
 
 (defn ->triples
   "Create Asami triples from either a `filepath` or `filename`/`content` combo."
   #?(:clj ([filepath]
-           (let [file (io/file filepath)]
-             #{} #_(document-triples (.getName file) (scrape-document file)))))
+           (let [file    (io/file filepath)
+                 content (-> filepath slurp remove-oxygen-declaration)]
+             (document-triples (.getName file) (scrape-document content)))))
   ([filename content]
-   #{} #_(document-triples filename (scrape-document content))))
+   (document-triples filename (scrape-document content))))
 
 (defn triples->entity
   "Assemble Asami `triples` into an Asami entity."
@@ -239,9 +188,9 @@
   (comp triples->entity ->triples))
 
 (comment
-  (def example (io/file "/Users/rqf595/Desktop/Glossematics-data/N-drev/1_HJELMSLEV-archive/TEI-wo-text/acc-1992_0005_102_14-30_1580-tei.xml"))
-  (xml/parse (slurp example))
-  (scrape-document (slurp example))
-  (->triples example)
-  (triples->entity (->triples example))
+  (def example (io/file "/Users/rqf595/everyman-corpus/druk_1666/druk_1666_CTB.xml"))
+  (xml/parse (remove-oxygen-declaration (slurp example)))
+  (scrape-document (slurp "/Users/rqf595/everyman-corpus/druk_1666/druk_1666_CTB.xml"))
+  (->triples "/Users/rqf595/everyman-corpus/druk_1666/druk_1666_CTB.xml")
+  (triples->entity (->triples "example.xml" (slurp example)))
   #_.)

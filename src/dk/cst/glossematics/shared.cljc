@@ -85,6 +85,26 @@
     (when-let [user (assertions->user-ids assertions)]
       (not-empty (single user)))))
 
+(defn merge-strings
+  "Merge all adjacent strings in `coll`."
+  [coll]
+  (loop [ret  []
+         [x & coll] coll
+         strs []]
+    (cond
+      (string? x)
+      (recur ret coll (conj strs x))
+
+      (some? x)
+      (if (not-empty strs)
+        (recur (into ret [(apply str strs) x]) coll [])
+        (recur (conj ret x) coll strs))
+
+      (nil? x)
+      (if (not-empty strs)
+        (conj ret (apply str strs))
+        ret))))
+
 (comment
   ;; These should all be true
   (= (capitalize-all "ACTA JUTLANDICA")

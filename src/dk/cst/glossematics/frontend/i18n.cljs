@@ -356,96 +356,35 @@
                                       "Klik på stjernen i det øverste højre hjørne for at tilføje den nuværende side som bogmærke.")}})
 
 (def other-translations
-  {:entity.type/unknown                 {:en "Unknown entity"
-                                         :da "Ukendt entitet"}
-   :entity.type/domain                  {:en "Domain"
-                                         :da "Domæne"}
-   :entity.type/archive                 {:en "Archive"
-                                         :da "Arkiv"}
-   :entity.type/person                  {:en "Person"
-                                         :da "Person"}
-   :entity.type/publication             {:en "Publication"
-                                         :da "Udgivelse"}
-   :entity.type/term                    {:en "Term (Danish)"
-                                         :da "Begreb"}
-   :entity.type/english-term            {:en "Term"
-                                         :da "Begreb (engelsk)"}
-   :entity.type/language                {:en "Language"
-                                         :da "Sprog"}
-   :entity.type/place                   {:en "Place"
-                                         :da "Sted"}
-   :entity.type/organisation            {:en "Organisation"
-                                         :da "Organisation"}
-   :entity.type/linguistic-organisation {:en "Linguistic organisation"
-                                         :da "Lingvistisk organisation"}
-   :document/condition                  {:en "condition"
-                                         :da "tilstand"}
-   :document/mention                    {:en "mentioned"
-                                         :da "omtalt"}
-   :document/author                     {:en "author"
-                                         :da "forfatter"}
-   :document/sender                     {:en "sender"
-                                         :da "afsender"}
-   :document/sender-location            {:en "sender location"
-                                         :da "afsenders lokation"}
-   :document/recipient                  {:en "recipient"
-                                         :da "modtager"}
-   :document/recipient-location         {:en "recipient location"
-                                         :da "modtagers lokation"}
-   :document/archive                    {:en "archive"
-                                         :da "arkiv"}
-   :document/language                   {:en "document language"
-                                         :da "dokumentsprog"}
-   :document/publication                {:en "publication"
-                                         :da "udgivelse"}
-   :document/place                      {:en "place"
-                                         :da "sted"}
-   :document/date-mention               {:en "mentioned date"
-                                         :da "omtalt dato"}
-   :document/sent-at                    {:en "date"
-                                         :da "dato"}
-   :db/ident                            {:en "id"
-                                         :da "id"}
-   :document/title                      {:en "title"
-                                         :da "titel"}
-   :document/bib-entry                  {:en "bibliography entry"
-                                         :da "bibliografisk angivelse"}
-   :document/notes                      {:en "notes"
-                                         :da "noter"}
-   :document/pp                         {:en "pp."
-                                         :da "pp."}
-   :document/publisher                  {:en "publisher"
-                                         :da "udgiver"}
-   :document/collection                 {:en "collection"
-                                         :da "samling"}
-   :document/facsimile                  {:en "facsimile"
-                                         :da "facsimile"}
-   :document/year                       {:en "year"
-                                         :da "år"}
-   :document/end-year                   {:en "year (end)"
-                                         :da "år (afslutning)"}
-   :document/relevant                   {:en "relevant for"
-                                         :da "relevant for"}
-   :file/name                           {:en "file"
-                                         :da "fil"}
-   :file/extension                      {:en "file extension"
-                                         :da "filendelse"}
+  {:entity.type/person         {:en "Person"
+                                :da "Person"}
+   :entity.type/language       {:en "Language"
+                                :da "Sprog"}
+
+   :file/name                  {:en "file"
+                                :da "fil"}
+   :file/extension             {:en "file extension"
+                                :da "filendelse"}
+   :document/title             {:en "title"
+                                :da "titel"}
+   :document/date              {:en "date"
+                                :da "dato"}
+   :document/language          {:en "document language"
+                                :da "dokumentsprog"}
+   :document/notes             {:en "notes"
+                                :da "noter"}
+   :document/condition         {:en "condition"
+                                :da "tilstand"}
+   :document/facsimile         {:en "facsimile"
+                                :da "facsimile"}
 
    ;; Some captions in use
-   ::fshared/title-caption              {:en "View in the reader"
-                                         :da "Vis i læseren"}
-   ::fshared/condition-caption          {:en "Find documents in this condition"
-                                         :da "Find dokumenter i denne tilstand"}
-   ::fshared/entity-caption             {:en "Find documents with this entity"
-                                         :da "Find relevante dokumenter for denne entitet"}
-
-   ;; Dynamic relations -- expands to a more complex operation during search.
-   :correspondent                       {:en "correspondent"
-                                         :da "korrespondent"}
-   :exactly                             {:en "text"
-                                         :da "tekst"}
-   :any                                 {:en "any role"
-                                         :da "enhver rolle"}})
+   ::fshared/title-caption     {:en "View in the reader"
+                                :da "Vis i læseren"}
+   ::fshared/condition-caption {:en "Find documents in this condition"
+                                :da "Find dokumenter i denne tilstand"}
+   ::fshared/entity-caption    {:en "Find documents with this entity"
+                                :da "Find relevante dokumenter for denne entitet"}})
 
 (defn- into-dicts
   "Turn aligned translations into top-level `dicts` as expected by Tongue."
