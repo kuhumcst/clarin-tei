@@ -20,6 +20,16 @@ columns {
     gap: 24px;
 }
 
+div1:not(:first-child),
+div2:not(:first-child),
+div3:not(:first-child),
+div4:not(:first-child),
+div5:not(:first-child),
+div6:not(:first-child) {
+    display: block;
+    margin-top: 1ch;
+}
+
 p[rend*=indent] {
     margin: 0;
 }

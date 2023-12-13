@@ -140,9 +140,9 @@
   ;; NOTE: only bootstraps once in dev mode!
   ;; This facilitates quick server restarts when developing at the REPL.
   (if (not @sp-conf)
-    (-> (example/in-home "/.glossematics/repl-conf.edn")
+    (-> (example/in-home "/.clarin-tei/repl-conf.edn")
         (load-sp-conf!)
-        #_(db/bootstrap!))
+        (db/bootstrap!))
     (log/info :bootstrap.conf/skip true))
 
   (let [service-map (assoc (->service-map @sp-conf) ::http/join? false)]

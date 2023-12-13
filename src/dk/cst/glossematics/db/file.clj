@@ -3,10 +3,12 @@
             [clojure.java.io :as io])
   (:import [java.io File]))
 
+;; TODO: are any of them not transcribed?
 (defn- with-body?
   "Does the file with `filename` contain a body of content?"
   [filename]
-  (str/ends-with? filename "-final.xml"))
+  true
+  #_(str/ends-with? filename "-final.xml"))
 
 (def file-entities-xf
   (comp
@@ -28,7 +30,8 @@
   (comp
     (map :file/name)
     (filter with-body?)
-    (map (fn [s] (str (subs s 0 (- (count s) 10)) ".xml")))))
+    (map (fn [s]
+           (str (subs s 0 (dec (count s))) ".xml")))))
 
 (defn file-entities
   "Recursively list all file entities found in `dir`, ignoring directories.
@@ -39,6 +42,7 @@
     (remove (comp duplicates :file/name) entities)))
 
 (comment
-  (file-entities "/Users/rqf595/Desktop/Glossematics-data")
+  (file-entities "/Users/rqf595/everyman-corpus")
+  (filter (comp #{"xml"} :file/extension) (file-entities "/Users/rqf595/everyman-corpus"))
   (count (file-entities "/Users/rqf595/Desktop/Glossematics-data"))
   #_.)

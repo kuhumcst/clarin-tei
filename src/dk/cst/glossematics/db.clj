@@ -156,23 +156,26 @@
   ;; Ensure that persisted storage exists and can be accessed.
   (log/info :bootstrap.asami/persisted-storage {:db (pconn db-dir)})
 
-  (log-transaction! :timeline (db.timeline/timeline-entities))
+  ;; TODO: remove these
+  (comment
+    (log-transaction! :timeline (db.timeline/timeline-entities))
 
-  ;; Search entities
-  (log-transaction! :repositories sd/repositories)
-  (log-transaction! :person (db.person/person-entities))
-  (log-transaction! :linguistic-organisation (other-entities "Lingvistiske_organisationer_og_konferencer-gennemgået-FINAL.txt" "#nlingorg" "linguistic-organisation"))
-  (log-transaction! :organisation (other-entities "Organisationer-gennemgået-FINAL.txt" "#norg" "organisation"))
-  (log-transaction! :publication (other-entities "Publikationer-gennemgået-FINAL.txt" "#npub" "publication"))
-  (log-transaction! :language (other-entities "sprog.txt" "#ns" "language"))
-  (log-transaction! :place (other-entities "Stednavne-gennemgået-FINAL.txt" "#npl" "place"))
-  (log-transaction! :terms (other-entities "terms.txt" "#nt" "term"))
-  (log-transaction! :english-terms (other-entities "terms-eng.txt" "#nteng" "english-term"))
-  (log-transaction! :domain (other-entities "Domain.txt" "#ndom" "domain"))
+    ;; Search entities
+    (log-transaction! :repositories sd/repositories)
+    (log-transaction! :person (db.person/person-entities))
+    (log-transaction! :linguistic-organisation (other-entities "Lingvistiske_organisationer_og_konferencer-gennemgået-FINAL.txt" "#nlingorg" "linguistic-organisation"))
+    (log-transaction! :organisation (other-entities "Organisationer-gennemgået-FINAL.txt" "#norg" "organisation"))
+    (log-transaction! :publication (other-entities "Publikationer-gennemgået-FINAL.txt" "#npub" "publication"))
+    (log-transaction! :language (other-entities "sprog.txt" "#ns" "language"))
+    (log-transaction! :place (other-entities "Stednavne-gennemgået-FINAL.txt" "#npl" "place"))
+    (log-transaction! :terms (other-entities "terms.txt" "#nt" "term"))
+    (log-transaction! :english-terms (other-entities "terms-eng.txt" "#nteng" "english-term"))
+    (log-transaction! :domain (other-entities "Domain.txt" "#ndom" "domain"))
 
-  ;; Add the file entities found in the files-dir.
-  ;; Then parse each TEI file and link the document data to the file entities.
-  (log-transaction! :paper db.paper/static-data)
+    ;; Add the file entities found in the files-dir.
+    ;; Then parse each TEI file and link the document data to the file entities.
+    (log-transaction! :paper db.paper/static-data))
+
   (log-transaction! :files (db.file/file-entities files-dir))
   (log-transaction! :tei-data (map db.tei/file->entity (tei-files conn))))
 
@@ -181,21 +184,24 @@
   (count (tei-files conn))
 
   ;; Delete everything in persisted storage -- for development use.
-  (d/delete-database (puri "/Users/rqf595/.glossematics/db"))
+  (d/delete-database (puri "/Users/rqf595/.clarin-tei/db"))
 
+
+  (db.file/file-entities "/Users/rqf595/everyman-corpus")
   ;; Test persisted storage
-  (d/transact (pconn "/Users/rqf595/.glossematics/db")
+  (d/transact (pconn "/Users/rqf595/.clarin-tei/db")
               {:tx-data [{:db/ident   "glen"
                           :glen/name  "Glen"
                           :glen/thing 123}]})
-  (d/entity (pconn "/Users/rqf595/.glossematics/db") "glen")
-  (d/q '[:find ?e ?a ?v
+  (d/entity (pconn "/Users/rqf595/.clarin-tei/db") "glen")
+  (d/q '[:find ?path .
+         :in $ ?name
          :where
-         [?e :db/ident #uuid"e4040c7d-9020-3e45-92ed-d57f1cd86abd"]
-         [?e ?a ?v]]
-       (pconn "/Users/rqf595/.glossematics/db"))
+         [?e :file/name ?name]
+         [?e :file/path ?path]]
+       conn "druk_1666_CTB.xml")
 
-  (bookmarks (pconn "/Users/rqf595/.glossematics/db")
+  (bookmarks (pconn "/Users/rqf595/.clarin-tei/db")
              {}
              "UNKNOWN")
 

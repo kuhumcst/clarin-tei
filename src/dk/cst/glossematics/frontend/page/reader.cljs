@@ -10,6 +10,7 @@
             [rescope.helpers :as helpers]
             [rescope.style :as style]
             [dk.cst.hiccup-tools :as ht]
+            [dk.cst.glossematics.shared :as shared]
             [dk.cst.stucco.pattern :as pattern]
             [dk.cst.stucco.group :as group]
             [dk.cst.stucco.document :as document]
@@ -102,7 +103,7 @@
 
     (fn [m]
       (let [[tag attr & content] (:source (meta m))]
-        (into [tag attr] (merge-strings* content))))))
+        (into [tag attr] (shared/merge-strings content))))))
 
 (def lb-as-br
   (cup/->transformer '[:lb] '[:br]))
@@ -225,7 +226,7 @@
                 ;; potential <fw> elements removed from the final column.
                 column-content
                 (conj (into [:columns] (if matches
-                                         (conj (butlast columns)
+                                         (conj (subvec columns 0 (dec (count columns)))
                                                (with-meta last-column' {}))
                                          columns)))
 
@@ -339,11 +340,12 @@
 
   ;; TODO: fix :tei-kvs side-effect, makes it hard to implement history/cache
   (p/let [tei              (or xml (api/fetch (str "/file/" document)))
+          clean-tei        (db.tei/remove-oxygen-declaration tei)
           entity           (if xml
                              (-> (db.tei/->triples document xml)
                                  (db.tei/triples->entity))
                              (api/fetch (str "/entity/" document)))
-          raw-hiccup       (parse tei)
+          raw-hiccup       (parse clean-tei)
           tr               (i18n/->tr)
           facs             (->> (normalize-facs (:document/facsimile entity))
                                 (mapv (partial facs-id->facs-page tr)))
@@ -356,7 +358,7 @@
 
            :document document
            :entity entity
-           :tei tei
+           :tei clean-tei
            :hiccup rewritten-hiccup
            :facs-kvs facs
 
@@ -451,7 +453,7 @@
         document-selected? (= ::page (get-in location* [:data :name]))
         new-document?      (not= document current-document)
         {:keys [document/condition document/facsimile]} entity
-        body?              (get condition "transcribed")
+        body?              (= condition "transcribed")
         paging?            (and i (> (count results) 1))
         pdf-src            (and (not body?)
                                 (string? facsimile)
