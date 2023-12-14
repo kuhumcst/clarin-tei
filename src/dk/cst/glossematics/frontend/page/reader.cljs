@@ -105,6 +105,13 @@
       (let [[tag attr & content] (:source (meta m))]
         (into [tag attr] (shared/merge-strings content))))))
 
+(declare inner-stage)
+
+;; Unlike the 'outer-stage', the 'inner-stage' transformations can be safely
+;; memoised since they don't have any side-effects.
+(def rewrite-inner
+  (memoize #(cup/rewrite % inner-stage)))
+
 (def lb-as-br
   (cup/->transformer '[:lb] '[:br]))
 
@@ -113,8 +120,10 @@
     '[:list (... list-items)]
 
     (fn [{:syms [list-items]}]
-      (into [:ul] (for [[tag attr & content] list-items]
-                    (into [:li] content))))))
+      (into [:ul] (for [list-item list-items]
+                    (let [[tag attr & content] (rewrite-inner list-item)]
+                      (when (= tag :tei-item)                   ; safeguard
+                        (into [:li] content))))))))
 
 (def ref-as-anchor
   (cup/->transformer
@@ -158,13 +167,6 @@
   [x]
   (and (vector? x)
        (= :fw (first x))))
-
-(declare inner-stage)
-
-;; Unlike the 'outer-stage', the 'inner-stage' transformations can be safely
-;; memoised since they don't have any side-effects.
-(def rewrite-page
-  (memoize #(cup/rewrite % inner-stage)))
 
 (defn update-tei-carousel!
   "Updates the `carousel-state` when new `kvs` are detected."
@@ -235,7 +237,7 @@
       (let [pages (map with-columns (body->pages (:source (meta m))))
             kvs   (for [[_ [_ {:keys [n facs]}] :as page] pages]
                     [(str "Side " n "; facs. " facs ".")
-                     (rewrite-page page)])]
+                     (rewrite-inner page)])]
         ;; Currently, TEI data is updated on the page by way of a side-effect.
         ;; I'm unsure if there is a better way to do this.
         (update-tei-carousel! state/tei-carousel kvs)

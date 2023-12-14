@@ -7,25 +7,13 @@
                :cljs [lambdaisland.glogi :as log])
             [dk.cst.cuphic :as cup]
             [dk.cst.cuphic.xml :as xml]
-            [dk.cst.glossematics.shared :as shared]
-            [dk.cst.glossematics.static-data :as sd])
-  #?(:clj (:import [java.time.temporal ChronoField]
-                   [java.time.format DateTimeFormatterBuilder])))
+            [dk.cst.glossematics.static-data :as sd]))
 
 ;; For some reason, the Clarin TEI files contain extra (invalid) declarations
 ;; which completely break parsing in the browser.
 (defn- remove-oxygen-declaration
   [xml]
   (str/replace xml #"<\?oxygen .+\?>\s?" ""))
-
-(def utc-dtf'
-  "NOTE: Defaults to 1 january in case either is missing."
-  #?(:clj  (-> (DateTimeFormatterBuilder.)
-               (.appendPattern "yyyy[-MM[-dd]]")
-               (.parseDefaulting ChronoField/MONTH_OF_YEAR 1)
-               (.parseDefaulting ChronoField/DAY_OF_MONTH 1)
-               (.toFormatter))
-     :cljs shared/utc-dtf))
 
 ;; TODO: is ?optional switched with non-optional? see :document-type
 ;; TODO: the ... pattern not working correctly in Cuphic?
