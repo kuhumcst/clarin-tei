@@ -306,8 +306,7 @@
     (log/info :endpoints/search-metadata (update-vals search-metadata count))
     (-> (assoc request
           :status 200
-          :body (transito/write-str {:search-metadata search-metadata
-                                     :top-30-kvs      sd/top-30}))
+          :body (transito/write-str {:search-metadata search-metadata}))
         (update :headers assoc
                 "Content-Type" "application/transit+json"
                 "Cache-Control" one-day-cache))))

@@ -113,11 +113,8 @@
     (into {} (map rename search-metadata))))
 
 (defn- ->name-kvs
-  [top-30-kvs name->id]
-  (->> (map first top-30-kvs)
-       (apply dissoc name->id)
-       (sort-by first)
-       (concat top-30-kvs)))
+  [name->id]
+  (sort-by first name->id))
 
 (defn- full-name->short-names
   "Get shorter variants of `full-name`."
@@ -174,11 +171,11 @@
                     ;; Sorted entity list for the form input's <datalist>.
                     ;; The entities with the highest document frequency are put
                     ;; at the top; the rest are sorted according to the name.
-                    :en-name-kvs (->name-kvs top-30-kvs name->id)
+                    :en-name-kvs (->name-kvs name->id)
 
                     ;; Hack to support Danish translations for attributes.
                     :da-name->id da-name->id
-                    :da-name-kvs (->name-kvs top-30-kvs da-name->id)))
+                    :da-name-kvs (->name-kvs da-name->id)))
            (?query-reset!)
            (-> (fshared/location->page-title @state/location)
                (fshared/set-title!)))))

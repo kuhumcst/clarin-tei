@@ -2,8 +2,6 @@
   "Functions for populating & querying the Glossematics Asami database."
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
-            [clojure.set :as set]
-            [clojure.math.combinatorics :as combo]
             [asami.core :as d]
             [io.pedestal.log :as log]
             [dk.cst.glossematics.static-data :as sd]
@@ -43,50 +41,6 @@
   (cond
     (set? v) v
     (some? v) #{v}))
-
-;; TODO: just use full name if we only have a single canonical name?
-(defn name-permutations
-  "Get names sourced from the first, last, and full name of a `person-entity`."
-  [person-entity]
-  (let [{:keys [person/first-name
-                person/last-name
-                entity/full-name]} (update-vals person-entity as-set)]
-    (set/union
-      (cond
-        (or (multiple? first-name) (multiple? last-name))
-        (->> (combo/cartesian-product first-name last-name)
-             (map (partial str/join " "))
-             (set))
-
-        (and (some? first-name) (some? last-name))
-        (let [first-name* (first first-name)
-              last-name*  (first last-name)]
-          (if (= first-name* last-name*)
-            #{last-name*}
-            #{(str first-name* " " last-name*)})))
-      (if-not (or full-name (and last-name first-name))
-        (or last-name first-name)
-        full-name))))
-
-;; Takes several minuts to execute; used to find static/top-30-name-kvs.
-;; TODO: remove again at some point?
-(defn top-names
-  []
-  (->> (d/q '[:find ?id (count ?f)
-              :where
-              [?p :entity/type :entity.type/person]
-              [?p :db/ident ?id]
-              [?f :entity/type :entity.type/file]
-              [?f _ ?id]]
-            conn)
-       (map #(assoc (d/entity conn (first %))
-               :db/ident (first %)
-               :frequency (second %)))
-       (mapcat (fn [{:keys [db/ident frequency] :as m}]
-                 (for [s (name-permutations m)]
-                   (with-meta [s ident] {:frequency frequency}))))
-       (sort-by (juxt (comp :frequency meta) first))
-       (reverse)))
 
 (defn other-entities
   "Load TSV resource from `file` with the given `id-prefix` and `entity-type`;
@@ -177,10 +131,14 @@
     (log-transaction! :paper db.paper/static-data))
 
   (log-transaction! :files (db.file/file-entities files-dir))
-  (log-transaction! :tei-data (map db.tei/file->entity (tei-files conn))))
+  (let [file-entities  (map db.tei/file->entity (tei-files conn))
+        named-entities (mapcat (comp :entities meta) file-entities)]
+    (log-transaction! :tei-data file-entities)
+    (log-transaction! :named-entities named-entities)))
 
 (comment
-  (bootstrap! {:files-dir "/Users/rqf595/Desktop/Glossematics-data"})
+  (bootstrap! {:files-dir "/Users/rqf595/everyman-corpus"
+               :db-dir    "/Users/rqf595/.clarin-tei/db"})
   (count (tei-files conn))
 
   ;; Delete everything in persisted storage -- for development use.

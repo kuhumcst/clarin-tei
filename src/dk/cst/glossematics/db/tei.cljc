@@ -137,23 +137,34 @@
     [filename :document/condition v]
     (log/info :tei/unsupported {:document/condition v})))
 
+(defn fix-full-name
+  [s]
+  (apply str (interpose " " (reverse (str/split s #", ")))))
+
 (defn document-triples
-  [filename {:keys [facsimile] :as result}]
-  (let [triple (partial single-triple result filename)]
-    (disj
-      (reduce
-        into
+  [filename {:keys [facsimile author] :as result}]
+  (let [triple (partial single-triple result filename)
+        {:syms [author author-name]} (first author)]
+    (with-meta
+      (disj
         (reduce
-          conj
-          #{}
-          [(triple valid? :document/title :title)
-           (triple valid? :document/language :language)
-           (triple valid? :document/notes :notes)
-           (triple valid? :document/date :date)
-           (triple valid? :document/author :author)])
-        [(for [{:syms [facs]} facsimile]
-           [filename :document/facsimile facs])])
-      nil)))
+          into
+          (reduce
+            conj
+            #{}
+            [(triple valid? :document/title :title)
+             (triple valid? :document/language :language)
+             (triple valid? :document/notes :notes)
+             (triple valid? :document/date :date)
+             (when (valid? author)
+               [filename :document/author author])])
+          [(for [{:syms [facs]} facsimile]
+             [filename :document/facsimile facs])])
+        nil)
+      (when (valid? author-name)
+        {:entities [{:db/ident         author
+                     :entity/type      :entity.type/person
+                     :entity/full-name (fix-full-name author-name)}]}))))
 
 (defn ->triples
   "Create Asami triples from either a `filepath` or `filename`/`content` combo."
@@ -168,17 +179,21 @@
   "Assemble Asami `triples` into an Asami entity."
   [triples]
   (let [ident (ffirst triples)]
-    (->> (for [[_ k v] triples]
-           {k #{v}})
-         (apply merge-with set/union {:db/ident ident}))))
+    (with-meta
+      (->> (for [[_ k v] triples]
+             {k #{v}})
+           (apply merge-with set/union {:db/ident ident}))
+      (meta triples))))
 
 (def file->entity
   (comp triples->entity ->triples))
 
 (comment
+  (fix-full-name "Horsens, Jens Albertsen")
   (def example (io/file "/Users/rqf595/everyman-corpus/druk_1666/druk_1666_CTB.xml"))
   (xml/parse (remove-oxygen-declaration (slurp example)))
   (scrape-document (slurp "/Users/rqf595/everyman-corpus/druk_1666/druk_1666_CTB.xml"))
   (->triples "/Users/rqf595/everyman-corpus/druk_1666/druk_1666_CTB.xml")
   (triples->entity (->triples "example.xml" (slurp example)))
+  (meta (triples->entity (->triples "example.xml" (slurp example))))
   #_.)

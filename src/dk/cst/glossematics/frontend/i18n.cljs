@@ -380,6 +380,11 @@
    :document/facsimile         {:en "facsimile"
                                 :da "facsimile"}
 
+   :any                        {:en "any role"
+                                :da "enhver rolle"}
+   :exactly                    {:en "text"
+                                :da "tekst"}
+
    ;; Some captions in use
    ::fshared/title-caption     {:en "View in the reader"
                                 :da "Vis i læseren"}

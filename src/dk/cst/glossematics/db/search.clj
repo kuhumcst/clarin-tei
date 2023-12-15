@@ -204,6 +204,8 @@
 (comment
   (defonce conn (d/connect "asami:mem://glossematics"))
 
+  (search-metadata conn)
+
   ;; Test entity search
   (count (match-entity conn {'_ #{"#np56"}}
                        [:document/date-mention :asc]
