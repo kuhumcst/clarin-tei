@@ -22,15 +22,15 @@
             [dk.cst.glossematics.frontend.page.reader :as reader]))
 
 (def routes
-  [["/app"
+  [["/tei"
     {:name  ::main/page
      :title "Glossematics"
      :page  main/page}]
-   ["/app/privacy"
+   ["/tei/privacy"
     {:name  ::privacy/page
      :title ::privacy
      :page  privacy/page}]
-   ["/app/search"
+   ["/tei/search"
     {:name  ::search/page
      :title search/page-title
      :page  search/page
@@ -39,22 +39,22 @@
                    (do
                      (search/?query-reset!)
                      (fshared/set-title! (search/page-title)))))}]
-   ["/app/bookmarks"
+   ["/tei/bookmarks"
     {:name  ::bookmarks/page
      :title ::bookmarks
      :page  bookmarks/page}]
-   ["/app/index/:kind"
+   ["/tei/index/:kind"
     {:name  ::index/page
      :title (fn [m]
               (->> (get-in m [:path-params :kind])
                    (keyword "entity.type")
                    ((i18n/->tr))))
      :page  index/page}]
-   ["/app/reader"
+   ["/tei/reader"
     {:name  ::reader/preview
      :title ::local-reader
      :page  reader/page}]
-   ["/app/reader/:document"
+   ["/tei/reader/:document"
     {:name  ::reader/page
      :title (fn [m]
               (get-in m [:path-params :document]))
@@ -160,7 +160,7 @@
        [:a {:href "https://www.was.digst.dk/glossematics-dk"}
         (mark-first (tr ::a11y))]
        [:span " / "]
-       [:a {:href "/app/privacy"}
+       [:a {:href "/tei/privacy"}
         (mark-first (tr ::privacy))]
        [:span " / "]
        [:a {:href "https://github.com/kuhumcst/glossematics"}

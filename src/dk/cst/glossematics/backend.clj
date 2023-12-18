@@ -33,22 +33,19 @@
   "Most of the routing happens on the frontend inside the SPA. The API routes
    are an exception (as well as the SAML routes required for Pedestal SP)."
   [conf]
-  (let [redirect-to-spa [(fn [_] {:status  301
-                                  :headers {"Location" "/app"}})]
-        conf-ic         (->conf-ic conf)
-        all             (conj (sp.ic/auth-chain conf :all) conf-ic)
-        authenticated   (conj (sp.ic/auth-chain conf :authenticated) conf-ic)
-        spa-chain       (conj all endpoints/lang-neg index/handler)]
+  (let [redirect-to-search [(fn [_] {:status  301
+                                     :headers {"Location" "/tei/search"}})]
+        conf-ic            (->conf-ic conf)
+        all                (conj (sp.ic/auth-chain conf :all) conf-ic)
+        authenticated      (conj (sp.ic/auth-chain conf :authenticated) conf-ic)
+        spa-chain          (conj all endpoints/lang-neg index/handler)]
 
     ;; These first few routes all lead to the SPA
-    #{["/" :get redirect-to-spa :route-name ::root]
-      ["/app" :get spa-chain :route-name ::spa]
-      ["/app/*" :get spa-chain :route-name ::spa-path]
+    #{["/" :get redirect-to-search :route-name ::root]
+      ["/tei" :get redirect-to-search :route-name ::spa]
+      ["/tei/*" :get spa-chain :route-name ::spa-path]
 
       ;; API routes
-      ["/timeline"
-       :get (into all endpoints/timeline-chain)
-       :route-name ::endpoints/timeline]
       ["/file/:filename"
        :get (into authenticated endpoints/file-chain)
        :route-name ::endpoints/file]

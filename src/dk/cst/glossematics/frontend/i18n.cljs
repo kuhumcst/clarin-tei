@@ -89,13 +89,13 @@
 
 (def main-page-translations
   {::main/logged-in-status   {:en [:p "You are currently " [:em "logged in"] " via your institution"
-                                   " (" [:a {:href "/app/bookmarks"} "bookmarks"] ")."]
+                                   " (" [:a {:href "/tei/bookmarks"} "bookmarks"] ")."]
                               :da [:p "Du er i øjeblikket " [:em "logget ind"] " via din institution"
-                                   " (" [:a {:href "/app/bookmarks"} "bogmærker"] ")."]}
+                                   " (" [:a {:href "/tei/bookmarks"} "bogmærker"] ")."]}
    ::main/logged-in-status-1 {:en [:p "You are currently " [:em "logged in"] " via " [:arg 0]
-                                   " (" [:a {:href "/app/bookmarks"} "bookmarks"] ")."]
+                                   " (" [:a {:href "/tei/bookmarks"} "bookmarks"] ")."]
                               :da [:p "Du er i øjeblikket " [:em "logget ind"] " via " [:arg 0]
-                                   " (" [:a {:href "/app/bookmarks"} "bogmærker"] ")."]}
+                                   " (" [:a {:href "/tei/bookmarks"} "bogmærker"] ")."]}
    ::main/log-out            {:en "Log out"
                               :da "Log ud"}
    ::main/log-out-long       {:en "Log out of Glossematics"
@@ -147,7 +147,7 @@
                                     [:p
                                      "We try to collect important material under different topics pages:"]
                                     [:ul
-                                     [:li [:a {:href "/app/tol-lectures"} "Lectures on the theory of language"]]]]
+                                     [:li [:a {:href "/tei/tol-lectures"} "Lectures on the theory of language"]]]]
                                    [:section
                                     [:h2 "Correspondences"]
                                     [:img.text-illustration.right.bg3 {:src   "/images/pd_transparent.png"
@@ -194,7 +194,7 @@
                                     [:p
                                      "Vi forsøger at samle vigtigt materiale under forskellige temasider:"]
                                     [:ul
-                                     [:li [:a {:href "/app/tol-lectures"} "Forelæsninger over sprogteori"]]]]
+                                     [:li [:a {:href "/tei/tol-lectures"} "Forelæsninger over sprogteori"]]]]
                                    [:section
                                     [:h2 "Korrespondancer"]
                                     [:img.text-illustration.right.bg3 {:src   "/images/pd_transparent.png"
