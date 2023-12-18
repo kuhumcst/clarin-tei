@@ -1,10 +1,10 @@
-(ns dk.cst.glossematics.frontend.api
+(ns dk.clarin.tei.frontend.api
   "Common API access operations."
   (:require [lambdaisland.fetch :as fetch]
             [kitchen-async.promise :as p]
             [dk.cst.pedestal.sp.auth :as sp.auth]
-            [dk.cst.glossematics.frontend.state :as state]
-            [dk.cst.glossematics.frontend.shared :as fshared]))
+            [dk.clarin.tei.frontend.state :as state]
+            [dk.clarin.tei.frontend.shared :as fshared]))
 
 (defn- refresh-dialog-msg
   [status]

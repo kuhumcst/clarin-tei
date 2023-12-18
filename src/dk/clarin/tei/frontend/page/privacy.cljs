@@ -1,6 +1,6 @@
-(ns dk.cst.glossematics.frontend.page.privacy
-  (:require [dk.cst.glossematics.frontend.i18n :as i18n]
-            [dk.cst.glossematics.frontend :as-alias frontend]))
+(ns dk.clarin.tei.frontend.page.privacy
+  (:require [dk.clarin.tei.frontend.i18n :as i18n]
+            [dk.clarin.tei.frontend :as-alias frontend]))
 
 (defn page
   []

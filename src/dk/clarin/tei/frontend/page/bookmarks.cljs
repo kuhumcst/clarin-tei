@@ -1,12 +1,12 @@
-(ns dk.cst.glossematics.frontend.page.bookmarks
-  (:require [dk.cst.glossematics.frontend :as-alias frontend]
-            [dk.cst.glossematics.frontend.shared :as fshared]
-            [dk.cst.glossematics.frontend.state :as state]
-            [dk.cst.glossematics.frontend.i18n :as i18n]
-            [dk.cst.glossematics.frontend.page.search :as-alias search]
-            [dk.cst.glossematics.frontend.page.reader :as-alias reader]
-            [dk.cst.glossematics.frontend.api :as api]
-            [dk.cst.glossematics.shared :as shared]))
+(ns dk.clarin.tei.frontend.page.bookmarks
+  (:require [dk.clarin.tei.frontend :as-alias frontend]
+            [dk.clarin.tei.frontend.shared :as fshared]
+            [dk.clarin.tei.frontend.state :as state]
+            [dk.clarin.tei.frontend.i18n :as i18n]
+            [dk.clarin.tei.frontend.page.search :as-alias search]
+            [dk.clarin.tei.frontend.page.reader :as-alias reader]
+            [dk.clarin.tei.frontend.api :as api]
+            [dk.clarin.tei.shared :as shared]))
 
 (defn index-links
   [groups]

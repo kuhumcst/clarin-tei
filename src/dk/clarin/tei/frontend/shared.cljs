@@ -1,16 +1,16 @@
-(ns dk.cst.glossematics.frontend.shared
+(ns dk.clarin.tei.frontend.shared
   "Frontend code that can be freely shared between frontend namespaces."
   (:require [clojure.string :as str]
             [reitit.frontend.easy :as rfe]
             [tick.core :as t]
-            [dk.cst.glossematics.shared :as shared]
-            [dk.cst.glossematics.frontend.state :as state]
-            [dk.cst.glossematics.static-data :as sd]
-            [dk.cst.glossematics.frontend.page.index :as-alias index]
-            [dk.cst.glossematics.frontend.page.search :as-alias search]
-            [dk.cst.glossematics.frontend.page.reader :as-alias reader]
+            [dk.clarin.tei.shared :as shared]
+            [dk.clarin.tei.frontend.state :as state]
+            [dk.clarin.tei.static-data :as sd]
+            [dk.clarin.tei.frontend.page.index :as-alias index]
+            [dk.clarin.tei.frontend.page.search :as-alias search]
+            [dk.clarin.tei.frontend.page.reader :as-alias reader]
             [dk.cst.stucco.pattern :as stp]
-            [dk.cst.glossematics.frontend.i18n :as i18n]))
+            [dk.clarin.tei.frontend.i18n :as i18n]))
 
 (defn backend-url
   [url]

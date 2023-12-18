@@ -1,4 +1,4 @@
-(ns dk.cst.glossematics.db.file
+(ns dk.clarin.tei.db.file
   (:require [clojure.string :as str]
             [clojure.java.io :as io])
   (:import [java.io File]))

@@ -1,4 +1,4 @@
-(ns dk.cst.glossematics.frontend.page.reader
+(ns dk.clarin.tei.frontend.page.reader
   "Page containing a synchronized facsimile & TEI transcription reader."
   (:require [clojure.string :as str]
             [shadow.resource :as resource]
@@ -10,23 +10,23 @@
             [rescope.helpers :as helpers]
             [rescope.style :as style]
             [dk.cst.hiccup-tools :as ht]
-            [dk.cst.glossematics.shared :as shared]
+            [dk.clarin.tei.shared :as shared]
             [dk.cst.stucco.pattern :as pattern]
             [dk.cst.stucco.group :as group]
             [dk.cst.stucco.document :as document]
             [dk.cst.stucco.util.css :as css]
-            [dk.cst.glossematics.db.tei :as db.tei]
-            [dk.cst.glossematics.frontend.page.search :as search-page]
-            [dk.cst.glossematics.frontend.state :as state :refer [db]]
-            [dk.cst.glossematics.frontend.api :as api]
-            [dk.cst.glossematics.frontend.shared :as fshared]
-            [dk.cst.glossematics.static-data :as sd]
-            [dk.cst.glossematics.frontend.i18n :as i18n]))
+            [dk.clarin.tei.db.tei :as db.tei]
+            [dk.clarin.tei.frontend.page.search :as search-page]
+            [dk.clarin.tei.frontend.state :as state :refer [db]]
+            [dk.clarin.tei.frontend.api :as api]
+            [dk.clarin.tei.frontend.shared :as fshared]
+            [dk.clarin.tei.static-data :as sd]
+            [dk.clarin.tei.frontend.i18n :as i18n]))
 
 (def tei-css
   "Styles used for TEI documents specifically. They are written in a regular CSS
   file and then processed to work on the generated HTML."
-  (style/prefix-css "tei" (resource/inline "dk/cst/glossematics/public/css/tei.css")))
+  (style/prefix-css "tei" (resource/inline "dk/clarin/tei/public/css/tei.css")))
 
 (def theme+tei-css
   "The complete set of styles (widgets and TEI documents)."

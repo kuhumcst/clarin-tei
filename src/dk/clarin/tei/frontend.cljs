@@ -1,4 +1,4 @@
-(ns dk.cst.glossematics.frontend
+(ns dk.clarin.tei.frontend
   "The central namespace of the frontend client; defines frontend routing."
   (:require [clojure.string :as str]
             [cljs.pprint :refer [pprint]]
@@ -9,17 +9,17 @@
             [time-literals.read-write :as tl]
             [dk.cst.stucco.util.css :as css]
             [dk.cst.pedestal.sp.auth :as sp.auth]
-            [dk.cst.glossematics.shared :as shared]
-            [dk.cst.glossematics.frontend.i18n :as i18n]
-            [dk.cst.glossematics.frontend.shared :as fshared]
-            [dk.cst.glossematics.frontend.state :as state :refer [db]]
-            [dk.cst.glossematics.frontend.api :as api]
-            [dk.cst.glossematics.frontend.page.main :as main]
-            [dk.cst.glossematics.frontend.page.privacy :as privacy]
-            [dk.cst.glossematics.frontend.page.search :as search]
-            [dk.cst.glossematics.frontend.page.bookmarks :as bookmarks]
-            [dk.cst.glossematics.frontend.page.index :as index]
-            [dk.cst.glossematics.frontend.page.reader :as reader]))
+            [dk.clarin.tei.shared :as shared]
+            [dk.clarin.tei.frontend.i18n :as i18n]
+            [dk.clarin.tei.frontend.shared :as fshared]
+            [dk.clarin.tei.frontend.state :as state :refer [db]]
+            [dk.clarin.tei.frontend.api :as api]
+            [dk.clarin.tei.frontend.page.main :as main]
+            [dk.clarin.tei.frontend.page.privacy :as privacy]
+            [dk.clarin.tei.frontend.page.search :as search]
+            [dk.clarin.tei.frontend.page.bookmarks :as bookmarks]
+            [dk.clarin.tei.frontend.page.index :as index]
+            [dk.clarin.tei.frontend.page.reader :as reader]))
 
 (def routes
   [["/tei/privacy"
@@ -144,7 +144,7 @@
        [:a {:href "/tei/privacy"}
         (mark-first (tr ::privacy))]
        [:span " / "]
-       [:a {:href "https://github.com/kuhumcst/glossematics"}
+       [:a {:href "https://github.com/kuhumcst/clarin-tei"}
         (mark-first "Github")]]
       [:section.links
        [tr ::copyright]]]]))

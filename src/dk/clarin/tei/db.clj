@@ -1,13 +1,13 @@
-(ns dk.cst.glossematics.db
+(ns dk.clarin.tei.db
   "Functions for populating & querying the Glossematics Asami database."
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [asami.core :as d]
             [io.pedestal.log :as log]
-            [dk.cst.glossematics.shared :as shared]
-            [dk.cst.glossematics.backend.shared :as bshared]
-            [dk.cst.glossematics.db.file :as db.file]
-            [dk.cst.glossematics.db.tei :as db.tei]))
+            [dk.clarin.tei.shared :as shared]
+            [dk.clarin.tei.backend.shared :as bshared]
+            [dk.clarin.tei.db.file :as db.file]
+            [dk.clarin.tei.db.tei :as db.tei]))
 
 (defonce conn
   (d/connect "asami:mem://clarin-tei"))

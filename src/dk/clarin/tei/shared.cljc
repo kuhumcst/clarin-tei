@@ -1,8 +1,8 @@
-(ns dk.cst.glossematics.shared
+(ns dk.clarin.tei.shared
   "Shared functionality usable from both frontend and backend."
   (:require [clojure.string :as str]
-            #?(:clj  [dk.cst.glossematics.backend.shared :refer [development?]]
-               :cljs [dk.cst.glossematics.frontend.state :refer [development?]])
+            #?(:clj  [dk.clarin.tei.backend.shared :refer [development?]]
+               :cljs [dk.clarin.tei.frontend.state :refer [development?]])
             [tick.core :as t]
             [tick.locale-en-us]                             ; need it for some reason
             #?(:clj  [io.pedestal.log :as log]

@@ -1,9 +1,9 @@
-(ns dk.cst.glossematics.backend.index
+(ns dk.clarin.tei.backend.index
   "Generate the index.html file using Clojure. This is mostly done to streamline
   fingerprinting of any included files in the release version."
   (:require [hiccup.core :as hiccup]
             [dk.cst.pedestal.sp.auth :as sp.auth]
-            [dk.cst.glossematics.backend.shared :as bshared])
+            [dk.clarin.tei.backend.shared :as bshared])
   (:import [java.util Date]))
 
 (def init-hash
@@ -22,7 +22,7 @@
     [:meta {:charset "utf-8"}]
     [:meta {:name    "viewport"
             :content "width=device-width, initial-scale=1.0"}]
-    [:title (str (when bshared/development? "(dev) ") "Glossematics")]
+    [:title (str (when bshared/development? "(dev) ") "Clarin TEI")]
     [:link {:rel "icon" :href (cb "/images/favicon.svg")}]
     [:link {:rel "mask-icon" :href (cb "/images/favicon.svg") :color "#a02c2c"}]
     [:link {:rel "stylesheet" :href (cb "/css/main.css")}]

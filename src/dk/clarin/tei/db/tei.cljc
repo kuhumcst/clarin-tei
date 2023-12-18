@@ -1,4 +1,4 @@
-(ns dk.cst.glossematics.db.tei
+(ns dk.clarin.tei.db.tei
   "Scrape metadata from TEI documents in both the frontend and the backend."
   (:require [clojure.string :as str]
             #?(:clj [clojure.java.io :as io])
@@ -7,7 +7,7 @@
                :cljs [lambdaisland.glogi :as log])
             [dk.cst.cuphic :as cup]
             [dk.cst.cuphic.xml :as xml]
-            [dk.cst.glossematics.static-data :as sd]))
+            [dk.clarin.tei.static-data :as sd]))
 
 ;; For some reason, the Clarin TEI files contain extra (invalid) declarations
 ;; which completely break parsing in the browser.

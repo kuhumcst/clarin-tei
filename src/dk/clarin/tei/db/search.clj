@@ -1,8 +1,8 @@
-(ns dk.cst.glossematics.db.search
+(ns dk.clarin.tei.db.search
   (:require [clojure.set :as set]
             [asami.core :as d]
             [io.pedestal.log :as log]
-            [dk.cst.glossematics.static-data :as sd]))
+            [dk.clarin.tei.static-data :as sd]))
 
 (defn- duplicate-names
   [type->name->id]

@@ -1,11 +1,11 @@
-(ns dk.cst.glossematics.frontend.page.index
+(ns dk.clarin.tei.frontend.page.index
   "Page containing a range of indices of important entities."
   (:require [clojure.string :as str]
-            [dk.cst.glossematics.static-data :as sd]
-            [dk.cst.glossematics.frontend.i18n :as i18n]
-            [dk.cst.glossematics.frontend.shared :as fshared]
-            [dk.cst.glossematics.frontend.state :as state]
-            [dk.cst.glossematics.shared :as shared]))
+            [dk.clarin.tei.static-data :as sd]
+            [dk.clarin.tei.frontend.i18n :as i18n]
+            [dk.clarin.tei.frontend.shared :as fshared]
+            [dk.clarin.tei.frontend.state :as state]
+            [dk.clarin.tei.shared :as shared]))
 
 (defn str->index-group
   "The canonical index group for a given `s`; used for group-by."

@@ -1,17 +1,17 @@
-(ns dk.cst.glossematics.frontend.page.search
+(ns dk.clarin.tei.frontend.page.search
   "Page containing a search form for finding content to read."
   (:require [clojure.string :as str]
             [clojure.set :as set]
             [reitit.frontend.easy :as rfe]
             [dk.cst.stucco.pattern :as stp]
-            [dk.cst.glossematics.static-data :as sd]
-            [dk.cst.glossematics.frontend :as-alias frontend]
-            [dk.cst.glossematics.frontend.i18n :as i18n]
-            [dk.cst.glossematics.frontend.shared :as fshared]
-            [dk.cst.glossematics.frontend.state :as state]
-            [dk.cst.glossematics.frontend.page.index :as index]
-            [dk.cst.glossematics.frontend.api :as api]
-            [dk.cst.glossematics.shared :as shared]))
+            [dk.clarin.tei.static-data :as sd]
+            [dk.clarin.tei.frontend :as-alias frontend]
+            [dk.clarin.tei.frontend.i18n :as i18n]
+            [dk.clarin.tei.frontend.shared :as fshared]
+            [dk.clarin.tei.frontend.state :as state]
+            [dk.clarin.tei.frontend.page.index :as index]
+            [dk.clarin.tei.frontend.api :as api]
+            [dk.clarin.tei.shared :as shared]))
 
 (defn- kv-label
   [tr id->name [k v]]

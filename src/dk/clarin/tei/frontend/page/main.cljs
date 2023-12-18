@@ -1,8 +1,8 @@
-(ns dk.cst.glossematics.frontend.page.main
-  (:require [dk.cst.glossematics.shared :as shared]
-            [dk.cst.glossematics.frontend.state :as state]
-            [dk.cst.glossematics.frontend.i18n :as i18n]
-            [dk.cst.glossematics.frontend.api :as api]
+(ns dk.clarin.tei.frontend.page.main
+  (:require [dk.clarin.tei.shared :as shared]
+            [dk.clarin.tei.frontend.state :as state]
+            [dk.clarin.tei.frontend.i18n :as i18n]
+            [dk.clarin.tei.frontend.api :as api]
             [clojure.string :as str]))
 
 (defn user-section

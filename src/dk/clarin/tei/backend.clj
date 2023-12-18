@@ -1,4 +1,4 @@
-(ns dk.cst.glossematics.backend
+(ns dk.clarin.tei.backend
   "The central namespace of the backend app; defines backend routing."
   (:require [clojure.set :as set]
             [clojure.java.io :as io]
@@ -11,11 +11,11 @@
             [dk.cst.pedestal.sp.conf :as sp.conf]
             [dk.cst.pedestal.sp.interceptors :as sp.ic]
             [dk.cst.pedestal.sp.example :as example]
-            [dk.cst.glossematics.backend.shared :as bshared]
-            [dk.cst.glossematics.backend.index :as index]
-            [dk.cst.glossematics.backend.endpoints :as endpoints]
-            [dk.cst.glossematics.db :as db :refer [conn]]
-            [dk.cst.glossematics.db.search :as db.search])
+            [dk.clarin.tei.backend.shared :as bshared]
+            [dk.clarin.tei.backend.index :as index]
+            [dk.clarin.tei.backend.endpoints :as endpoints]
+            [dk.clarin.tei.db :as db :refer [conn]]
+            [dk.clarin.tei.db.search :as db.search])
   (:gen-class))
 
 (defonce server (atom nil))
@@ -100,7 +100,7 @@
              ::http/type           :jetty
              ::http/host           "0.0.0.0"                ; "localhost" won't work on a KU-IT server
              ::http/port           8080
-             ::http/resource-path  "/dk/cst/glossematics/public"
+             ::http/resource-path  "/dk/clarin/tei/public"
 
              ;; Using the starter policy from https://content-security-policy.com/ as a basis
              ::http/secure-headers {:content-security-policy-settings csp}}

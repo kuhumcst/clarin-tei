@@ -1,14 +1,14 @@
-(ns dk.cst.glossematics.frontend.i18n
+(ns dk.clarin.tei.frontend.i18n
   "English and Danish translations for the frontend pages."
   (:require [tongue.core :as tongue]
-            [dk.cst.glossematics.frontend.state :as state]
-            [dk.cst.glossematics.frontend :as-alias frontend]
-            [dk.cst.glossematics.frontend.shared :as-alias fshared]
-            [dk.cst.glossematics.frontend.page.main :as-alias main]
-            [dk.cst.glossematics.frontend.page.privacy :as-alias privacy]
-            [dk.cst.glossematics.frontend.page.bookmarks :as-alias bookmarks]
-            [dk.cst.glossematics.frontend.page.reader :as-alias reader]
-            [dk.cst.glossematics.frontend.page.search :as-alias search]))
+            [dk.clarin.tei.frontend.state :as state]
+            [dk.clarin.tei.frontend :as-alias frontend]
+            [dk.clarin.tei.frontend.shared :as-alias fshared]
+            [dk.clarin.tei.frontend.page.main :as-alias main]
+            [dk.clarin.tei.frontend.page.privacy :as-alias privacy]
+            [dk.clarin.tei.frontend.page.bookmarks :as-alias bookmarks]
+            [dk.clarin.tei.frontend.page.reader :as-alias reader]
+            [dk.clarin.tei.frontend.page.search :as-alias search]))
 
 ;; Allow for positionally interpolated Hiccup vectors in translations.
 ;; NOTE: copy-pasted from https://github.com/tonsky/tongue#interpolation

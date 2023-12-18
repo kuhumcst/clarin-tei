@@ -1,4 +1,4 @@
-(ns dk.cst.glossematics.frontend.state
+(ns dk.clarin.tei.frontend.state
   "Contains both static and dynamic frontend state."
   (:require [reagent.core :as r]
             [reagent.cookies :as cookie]

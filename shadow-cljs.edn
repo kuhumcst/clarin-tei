@@ -1,18 +1,18 @@
 {:deps     {:aliases [:frontend :test]}
- :dev-http {9000 {:root    "resources/dk/cst/glossematics/public"
-                  :handler dk.cst.glossematics.backend.index/shadow-handler}}
+ :dev-http {9000 {:root    "resources/dk/clarin/tei/public"
+                  :handler dk.clarin.tei.backend.index/shadow-handler}}
  :nrepl    {:port 9900}
  :builds   {:app  {:target            :browser
-                   :output-dir        "resources/dk/cst/glossematics/public/js/compiled"
+                   :output-dir        "resources/dk/clarin/tei/public/js/compiled"
                    :asset-path        "/js/compiled"
                    :compiler-options  {:data-readers  true
                                        :infer-externs :auto}
                    :module-hash-names true
-                   :modules           {:main {:init-fn dk.cst.glossematics.frontend/init!}}
+                   :modules           {:main {:init-fn dk.clarin.tei.frontend/init!}}
 
                    ;; https://shadow-cljs.github.io/docs/UsersGuide.html#build-report
                    :build-hooks       [(shadow.cljs.build-report/hook)]}
             :test {:target   :browser-test
-                   :test-dir "resources/dk/cst/glossematics/public/js/test"
+                   :test-dir "resources/dk/clarin/tei/public/js/test"
                    :devtools {:http-port 9100
-                              :http-root "resources/dk/cst/glossematics/public/js/test"}}}}
+                              :http-root "resources/dk/clarin/tei/public/js/test"}}}}

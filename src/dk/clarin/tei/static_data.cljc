@@ -1,4 +1,4 @@
-(ns dk.cst.glossematics.static-data
+(ns dk.clarin.tei.static-data
   (:require [clojure.set :as set]))
 
 (def real-entity-types

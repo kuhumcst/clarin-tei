@@ -1,4 +1,4 @@
-(ns dk.cst.glossematics.backend.shared
+(ns dk.clarin.tei.backend.shared
   "Backend code that can be freely shared between backend namespaces."
   (:require [clojure.java.io :as io]
             [clojure.edn :as edn]))
@@ -6,7 +6,7 @@
 (defn resource
   "Load a Glossematics resource from `path` (avoids resource shadowing)."
   [path]
-  (io/resource (str "dk/cst/glossematics/" path)))
+  (io/resource (str "dk/clarin/tei/" path)))
 
 (def main-js
   "When making a release, the filename will be appended with a hash;

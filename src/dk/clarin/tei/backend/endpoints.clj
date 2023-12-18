@@ -1,4 +1,4 @@
-(ns dk.cst.glossematics.backend.endpoints
+(ns dk.clarin.tei.backend.endpoints
   "The various handlers/interceptors provided by the backend web service."
   (:require [clojure.string :as str]
             [io.pedestal.http.route :refer [path-params-decoder]]
@@ -9,11 +9,11 @@
             [com.wsscode.transito :as transito]
             [asami.core :as d]
             [tick.core :as t]
-            [dk.cst.glossematics.db :as db :refer [conn pconn]] ; TODO: attach this in an interceptor instead, reducing decoupling?
-            [dk.cst.glossematics.db.search :as db.search]
-            [dk.cst.glossematics.shared :refer [parse-date utc-dtf]]
+            [dk.clarin.tei.db :as db :refer [conn pconn]] ; TODO: attach this in an interceptor instead, reducing decoupling?
+            [dk.clarin.tei.db.search :as db.search]
+            [dk.clarin.tei.shared :refer [parse-date utc-dtf]]
             [dk.cst.pedestal.sp.auth :as sp.auth]
-            [dk.cst.glossematics.shared :as shared])
+            [dk.clarin.tei.shared :as shared])
   (:import [java.util UUID]))
 
 (def one-month-cache
