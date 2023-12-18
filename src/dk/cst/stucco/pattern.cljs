@@ -215,14 +215,13 @@
            (> slide-count 10)
            [:div
             "p. "
-            [:select {:on-change (fn [e]
+            [:select {:value     i
+                      :on-change (fn [e]
                                    (when-let [v (.-value (.-target e))]
                                      (swap! state assoc :i (parse-long v))))}
-             (for [n (range slide-count)
-                   :let [selected? (= n i)]]
-               [:option {:key      n
-                         :value    n
-                         :selected selected?}
+             (for [n (range slide-count)]
+               [:option {:key   n
+                         :value n}
                 (inc n)])]])]
         [:div.carousel__slide-separator]
         content]
