@@ -141,9 +141,12 @@
   [s]
   (apply str (interpose " " (reverse (str/split s #", ")))))
 
+(def year-re
+  #"^\d\d\d\d")
+
 (defn century
   [date-str]
-  (some-> (re-find #"\d\d\d\d" date-str)
+  (some-> (re-find year-re date-str)
           (parse-long)
           (quot 100)))
 
@@ -151,9 +154,10 @@
   [filename {:keys [facsimile author date] :as result}]
   (let [triple    (partial single-triple result filename)
         {:syms [author author-name]} (first author)
-        cent      (century (get (first date) 'date))
+        date'     (get (first date) 'date)
+        cent      (century date')
         cent-id   (str "#c" cent)
-        cent-name (str cent ". århundrede")]
+        cent-name (str cent "00-tallet")]
     (with-meta
       (disj
         (reduce
@@ -164,14 +168,20 @@
             [(triple valid? :document/title :title)
              (triple valid? :document/language :language)
              (triple valid? :document/notes :notes)
+             (if cent
+               [filename :document/century cent-id]
+               [filename :document/author "#unknown_century"])
              (triple valid? :document/date :date)
-             (when cent
-               [filename :document/century cent-id])
-             (triple valid? :document/date :date)
-             (when (valid? author)
-               [filename :document/author author])])
+             (if (valid? author)
+               [filename :document/author author]
+               [filename :document/author "#unknown_person"])])
           [(for [{:syms [facs]} facsimile]
-             [filename :document/facsimile facs])])
+             [filename :document/facsimile facs])
+           (when (valid? date')
+             [(when-let [year (re-find year-re date')]
+                [filename :document/year (parse-long year)])
+              (when-not (re-matches year-re date')
+                [filename :document/date date'])])])
         nil)
       {:entities [(when (valid? author-name)
                     {:db/ident         author

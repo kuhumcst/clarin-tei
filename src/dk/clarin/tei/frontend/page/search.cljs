@@ -382,7 +382,7 @@
 
 (defn search-result-between
   [tr [order-rel _ :as order-by] from to]
-  (let [order-type (get-in sd/order-rels [order-rel :type] "date")
+  (let [order-type (get-in sd/order-rels [order-rel :type] "month")
         ->tofrom   #(fn [e]
                       (swap! state/query assoc :offset 0)
                       (if-let [v (not-empty (e->v e))]
@@ -563,13 +563,14 @@
             ;; Remove when:
             ;;   1) There are no results.
             ;;   2) We can be sure it is not due to filtering by date.
-            (let [condition? (some condition-kv? items)]
-              (when (or condition?
-                        (not (empty? results))
-                        (some? order-rel))
-                [:details {:open (boolean (or order-rel condition?))}
-                 [:summary (tr ::options)]
-                 [search-result-postprocessing tr]]))])]))))
+            ;; TODO: disabled for now, re-enable with support for e.g. years?
+            #_(let [condition? (some condition-kv? items)]
+                (when (or condition?
+                          (not (empty? results))
+                          (some? order-rel))
+                  [:details {:open (boolean (or order-rel condition?))}
+                   [:summary (tr ::options)]
+                   [search-result-postprocessing tr]]))])]))))
 
 (defn- set-offset
   [f n]

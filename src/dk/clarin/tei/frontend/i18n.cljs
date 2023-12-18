@@ -275,14 +275,16 @@
    :file/extension             {:en "file extension"
                                 :da "filendelse"}
 
-   :document/century           {:en "Century"
-                                :da "Århundrede"}
+   :document/century           {:en "century"
+                                :da "århundrede"}
    :document/title             {:en "title"
                                 :da "titel"}
    :document/author            {:en "author"
                                 :da "forfatter"}
    :document/date              {:en "date"
                                 :da "dato"}
+   :document/year              {:en "år"
+                                :da "år"}
    :document/language          {:en "language"
                                 :da "sprog"}
    :document/notes             {:en "notes"

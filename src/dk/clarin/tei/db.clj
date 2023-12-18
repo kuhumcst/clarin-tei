@@ -3,6 +3,7 @@
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
             [asami.core :as d]
+            [dk.clarin.tei.static-data :as sd]
             [io.pedestal.log :as log]
             [dk.clarin.tei.shared :as shared]
             [dk.clarin.tei.backend.shared :as bshared]
@@ -92,7 +93,8 @@
   (log/info :bootstrap.asami/persisted-storage {:db (pconn db-dir)})
   (log-transaction! :files (db.file/file-entities files-dir))
   (let [file-entities  (map db.tei/file->entity (tei-files conn))
-        named-entities (mapcat (comp :entities meta) file-entities)]
+        named-entities (concat (mapcat (comp :entities meta) file-entities)
+                               sd/static-entities)]
     (log-transaction! :tei-data file-entities)
     (log-transaction! :named-entities named-entities)))
 

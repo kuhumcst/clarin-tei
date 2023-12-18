@@ -9,32 +9,32 @@
    :entity.type/century
    {:img-src "/images/hourglass-2.svg"}})
 
-   ;:entity.type/language
-   ;{:img-src "/images/speech-bubble-svgrepo-com.svg"}})
+;:entity.type/language
+;{:img-src "/images/speech-bubble-svgrepo-com.svg"}})
 
-   ;:entity.type/domain
-   ;{:img-src "/images/university-svgrepo-com.svg"}
-   ;
-   ;:entity.type/archive
-   ;{:img-src "/images/archive-svgrepo-com.svg"}
-   ;
-   ;:entity.type/publication
-   ;{:img-src "/images/book-fill.svg"}
-   ;
-   ;:entity.type/term
-   ;{:img-src "/images/label-svgrepo-com.svg"}
-   ;
-   ;:entity.type/english-term
-   ;{:img-src "/images/label-svgrepo-com.svg"}
-   ;
-   ;:entity.type/place
-   ;{:img-src "/images/earth-fill.svg"}
-   ;
-   ;:entity.type/organisation
-   ;{:img-src "/images/people-group-svgrepo-com.svg"}
-   ;
-   ;:entity.type/linguistic-organisation
-   ;{:img-src "/images/people-group-svgrepo-com.svg"}})
+;:entity.type/domain
+;{:img-src "/images/university-svgrepo-com.svg"}
+;
+;:entity.type/archive
+;{:img-src "/images/archive-svgrepo-com.svg"}
+;
+;:entity.type/publication
+;{:img-src "/images/book-fill.svg"}
+;
+;:entity.type/term
+;{:img-src "/images/label-svgrepo-com.svg"}
+;
+;:entity.type/english-term
+;{:img-src "/images/label-svgrepo-com.svg"}
+;
+;:entity.type/place
+;{:img-src "/images/earth-fill.svg"}
+;
+;:entity.type/organisation
+;{:img-src "/images/people-group-svgrepo-com.svg"}
+;
+;:entity.type/linguistic-organisation
+;{:img-src "/images/people-group-svgrepo-com.svg"}})
 
 (def special-entity-types
   "These do not correspond to actual entities, but rather to searchable
@@ -48,6 +48,11 @@
    ;; TODO: move translations to i18n ns??
    {:en->da  {"transcribed" "transkriberet"}
     :img-src "/images/paper-sheet-svgrepo-com.svg"}})
+
+(def static-entities
+  [{:db/ident         "#unknown_person"
+    :entity/type      :entity.type/person
+    :entity/full-name "???"}])
 
 (def en-attr->da-attr
   (apply merge (map (comp :en->da second) special-entity-types)))
@@ -72,21 +77,20 @@
 ;; TODO: add year/date?
 (def search-rels
   {:document/author    {:compatible #{:entity.type/person}}
-   :document/language  {:compatible #{:entity.type/language}}
+   :document/century   {:compatible #{:entity.type/century}}
 
    ;; Special relations -- various strings treated as searchable entities.
    :document/condition {:compatible #{:document/condition}}})
 
 (def order-rels
-  {:document/date {:type "date"}})
+  {:document/year {:type nil}                               ; not supported
+   :document/date {:type "date"}})
 
 ;; Used for select-keys (NOTE: relies on n<8 keys to keep order)
 (def search-result-rels
   [:document/date
-   :document/author
-   :document/condition])
+   :document/author])
 
 (def reader-rels
   [:document/date
-   :document/author
-   :document/condition])
+   :document/author])

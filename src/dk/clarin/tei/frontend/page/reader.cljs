@@ -122,7 +122,7 @@
     (fn [{:syms [list-items]}]
       (into [:ul] (for [list-item list-items]
                     (let [[tag attr & content] (rewrite-inner list-item)]
-                      (when (= tag :tei-item)                   ; safeguard
+                      (when (= tag :tei-item)               ; safeguard
                         (into [:li] content))))))))
 
 (def ref-as-anchor
@@ -440,7 +440,7 @@
         new-document?      (not= document current-document)
         {:keys [document/condition document/facsimile]} entity
         body?              (= condition "transcribed")
-        paging?            (and i (> (count results) 1))
+        paging?            false #_(and i (> (count results) 1))
         pdf-src            (and (not body?)
                                 (string? facsimile)
                                 (str/ends-with? facsimile ".pdf")
