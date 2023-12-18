@@ -24,13 +24,17 @@
   (let [m (->> (d/q '[:find [?id ...]
                       :where
                       (or
+                        [?p :entity/type :entity.type/person]
+                        [?p :entity/type :entity.type/century]
+                        [?p :entity/type :entity.type/language] ;TODO: keep?
+
+                        ;; TODO: remove?
                         [?p :entity/type :entity.type/domain]
                         [?p :entity/type :entity.type/archive]
                         [?p :entity/type :entity.type/person]
                         [?p :entity/type :entity.type/linguistic-organisation]
                         [?p :entity/type :entity.type/organisation]
                         [?p :entity/type :entity.type/publication]
-                        [?p :entity/type :entity.type/language]
                         [?p :entity/type :entity.type/place]
                         [?p :entity/type :entity.type/term]
                         [?p :entity/type :entity.type/english-term])

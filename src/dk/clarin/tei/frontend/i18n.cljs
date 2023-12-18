@@ -267,11 +267,16 @@
                                 :da "Person"}
    :entity.type/language       {:en "Language"
                                 :da "Sprog"}
+   :entity.type/century        {:en "Century"
+                                :da "Århundrede"}
 
    :file/name                  {:en "file"
                                 :da "fil"}
    :file/extension             {:en "file extension"
                                 :da "filendelse"}
+
+   :document/century           {:en "Century"
+                                :da "Århundrede"}
    :document/title             {:en "title"
                                 :da "titel"}
    :document/author            {:en "author"

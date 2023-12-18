@@ -14,7 +14,7 @@
             [dk.clarin.tei.frontend.shared :as fshared]
             [dk.clarin.tei.frontend.state :as state :refer [db]]
             [dk.clarin.tei.frontend.api :as api]
-            [dk.clarin.tei.frontend.page.main :as main]
+            [dk.clarin.tei.frontend.page.main :as-alias main]
             [dk.clarin.tei.frontend.page.privacy :as privacy]
             [dk.clarin.tei.frontend.page.search :as search]
             [dk.clarin.tei.frontend.page.bookmarks :as bookmarks]
@@ -55,19 +55,6 @@
      :title (fn [m]
               (get-in m [:path-params :document]))
      :page  reader/page}]])
-
-;; TODO: remove...?
-(defn debug-view
-  []
-  [:details {:style {:opacity "0.33"}} [:summary "DEBUG"]
-   [:details [:summary "auth"]
-    (sp.auth/if-permit [state/assertions {:attrs {"firstName" #{"Simon"}}}]
-      "firstName = Simon"
-      "firstName != Simon")]
-   [:details [:summary "assertions"]
-    [:pre (with-out-str (pprint state/assertions))]]
-   [:details [:summary "@db"]
-    [:pre (with-out-str (pprint @db))]]])
 
 (def lang
   {"da" "en"

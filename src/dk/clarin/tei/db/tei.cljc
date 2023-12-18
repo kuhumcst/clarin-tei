@@ -141,10 +141,19 @@
   [s]
   (apply str (interpose " " (reverse (str/split s #", ")))))
 
+(defn century
+  [date-str]
+  (some-> (re-find #"\d\d\d\d" date-str)
+          (parse-long)
+          (quot 100)))
+
 (defn document-triples
-  [filename {:keys [facsimile author] :as result}]
-  (let [triple (partial single-triple result filename)
-        {:syms [author author-name]} (first author)]
+  [filename {:keys [facsimile author date] :as result}]
+  (let [triple    (partial single-triple result filename)
+        {:syms [author author-name]} (first author)
+        cent      (century (get (first date) 'date))
+        cent-id   (str "#c" cent)
+        cent-name (str cent ". århundrede")]
     (with-meta
       (disj
         (reduce
@@ -156,15 +165,22 @@
              (triple valid? :document/language :language)
              (triple valid? :document/notes :notes)
              (triple valid? :document/date :date)
+             (when cent
+               [filename :document/century cent-id])
+             (triple valid? :document/date :date)
              (when (valid? author)
                [filename :document/author author])])
           [(for [{:syms [facs]} facsimile]
              [filename :document/facsimile facs])])
         nil)
-      (when (valid? author-name)
-        {:entities [{:db/ident         author
+      {:entities [(when (valid? author-name)
+                    {:db/ident         author
                      :entity/type      :entity.type/person
-                     :entity/full-name (fix-full-name author-name)}]}))))
+                     :entity/full-name (fix-full-name author-name)})
+                  (when cent
+                    {:db/ident         cent-id
+                     :entity/type      :entity.type/century
+                     :entity/full-name cent-name})]})))
 
 (defn ->triples
   "Create Asami triples from either a `filepath` or `filename`/`content` combo."
@@ -189,6 +205,9 @@
   (comp triples->entity ->triples))
 
 (comment
+  (century "1500")
+  (century "2001")
+  (century "2001-01-01")
   (fix-full-name "Horsens, Jens Albertsen")
   (def example (io/file "/Users/rqf595/everyman-corpus/druk_1666/druk_1666_CTB.xml"))
   (xml/parse (remove-oxygen-declaration (slurp example)))

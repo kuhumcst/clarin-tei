@@ -10,8 +10,11 @@
 (defn str->index-group
   "The canonical index group for a given `s`; used for group-by."
   [s]
-  (when s
-    (first (str/upper-case (fshared/str-sort-val s)))))
+  (or
+    (when-let [initial-num (re-find #"^\d+" s)]
+      initial-num)
+    (when s
+      (first (str/upper-case (fshared/str-sort-val s))))))
 
 (defn- index-groups
   [search-metadata entity-type]
