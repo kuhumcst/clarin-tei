@@ -68,14 +68,8 @@
            :bookmarks nil
            :search    {:query query-defaults}}))
 
-(defonce compact
-  (r/cursor db [:compact]))
-
 (defonce location
   (r/cursor db [:location]))
-
-(defonce timeline
-  (r/cursor db [:timeline]))
 
 (defonce ui
   (r/cursor db [:ui]))
@@ -85,9 +79,6 @@
 
 (defonce query
   (r/cursor db [:search :query]))
-
-(defonce bibliography
-  (r/cursor db [:bibliography]))
 
 (defonce bookmarks
   (r/cursor db [:bookmarks]))

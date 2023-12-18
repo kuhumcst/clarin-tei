@@ -4,20 +4,13 @@
             [clojure.java.io :as io]
             [asami.core :as d]
             [io.pedestal.log :as log]
-            [dk.cst.glossematics.static-data :as sd]
             [dk.cst.glossematics.shared :as shared]
             [dk.cst.glossematics.backend.shared :as bshared]
             [dk.cst.glossematics.db.file :as db.file]
-            [dk.cst.glossematics.db.paper :as db.paper]
-            [dk.cst.glossematics.db.person :as db.person]
-            [dk.cst.glossematics.db.timeline :as db.timeline]
             [dk.cst.glossematics.db.tei :as db.tei]))
 
-;; Syntax errors (fixed)
-;; acc-1992_0005_025_Jakobson_0180-tei-final.xml:127:64
-
 (defonce conn
-  (d/connect "asami:mem://glossematics"))
+  (d/connect "asami:mem://clarin-tei"))
 
 (defn- puri
   [db-dir]
@@ -41,17 +34,6 @@
   (cond
     (set? v) v
     (some? v) #{v}))
-
-(defn other-entities
-  "Load TSV resource from `file` with the given `id-prefix` and `entity-type`;
-  the returned data can be transacted into Asami."
-  [file id-prefix entity-type]
-  (->> (-> file bshared/resource io/input-stream io/reader line-seq dedupe)
-       (map #(str/split % #"\t"))
-       (map (fn [[id full-name]]
-              {:db/ident         (str id-prefix id)
-               :entity/type      (keyword "entity.type" entity-type)
-               :entity/full-name (shared/capitalize-all full-name)}))))
 
 (defn tei-files
   [conn]
@@ -107,29 +89,7 @@
 (defn bootstrap!
   "Asynchronously bootstrap an in-memory Asami database from a `conf`."
   [{:keys [files-dir db-dir] :as conf}]
-  ;; Ensure that persisted storage exists and can be accessed.
   (log/info :bootstrap.asami/persisted-storage {:db (pconn db-dir)})
-
-  ;; TODO: remove these
-  (comment
-    (log-transaction! :timeline (db.timeline/timeline-entities))
-
-    ;; Search entities
-    (log-transaction! :repositories sd/repositories)
-    (log-transaction! :person (db.person/person-entities))
-    (log-transaction! :linguistic-organisation (other-entities "Lingvistiske_organisationer_og_konferencer-gennemgået-FINAL.txt" "#nlingorg" "linguistic-organisation"))
-    (log-transaction! :organisation (other-entities "Organisationer-gennemgået-FINAL.txt" "#norg" "organisation"))
-    (log-transaction! :publication (other-entities "Publikationer-gennemgået-FINAL.txt" "#npub" "publication"))
-    (log-transaction! :language (other-entities "sprog.txt" "#ns" "language"))
-    (log-transaction! :place (other-entities "Stednavne-gennemgået-FINAL.txt" "#npl" "place"))
-    (log-transaction! :terms (other-entities "terms.txt" "#nt" "term"))
-    (log-transaction! :english-terms (other-entities "terms-eng.txt" "#nteng" "english-term"))
-    (log-transaction! :domain (other-entities "Domain.txt" "#ndom" "domain"))
-
-    ;; Add the file entities found in the files-dir.
-    ;; Then parse each TEI file and link the document data to the file entities.
-    (log-transaction! :paper db.paper/static-data))
-
   (log-transaction! :files (db.file/file-entities files-dir))
   (let [file-entities  (map db.tei/file->entity (tei-files conn))
         named-entities (mapcat (comp :entities meta) file-entities)]

@@ -47,23 +47,23 @@
 
       ;; API routes
       ["/file/:filename"
-       :get (into authenticated endpoints/file-chain)
+       :get (into all endpoints/file-chain)
        :route-name ::endpoints/file]
       ["/entity/:id"
-       :get (into authenticated endpoints/entity-chain)
+       :get (into all endpoints/entity-chain)
        :route-name ::endpoints/entity]
-      ["/user/:author/bookmarks"
-       :get (into authenticated endpoints/bookmarks-chain)
-       :route-name ::endpoints/bookmarks]
-      ["/user/:author/bookmarks"
-       :post (into authenticated endpoints/add-bookmark-chain)
-       :route-name ::endpoints/add-bookmark]
-      ["/user/:author/bookmarks/:id"
-       :get (into authenticated endpoints/single-bookmark-chain)
-       :route-name ::endpoints/get-bookmark]
-      ["/user/:author/bookmarks/:id"
-       :delete (into authenticated endpoints/single-bookmark-chain)
-       :route-name ::endpoints/delete-bookmark]
+      #_["/user/:author/bookmarks"
+         :get (into authenticated endpoints/bookmarks-chain)
+         :route-name ::endpoints/bookmarks]
+      #_["/user/:author/bookmarks"
+         :post (into authenticated endpoints/add-bookmark-chain)
+         :route-name ::endpoints/add-bookmark]
+      #_["/user/:author/bookmarks/:id"
+         :get (into authenticated endpoints/single-bookmark-chain)
+         :route-name ::endpoints/get-bookmark]
+      #_["/user/:author/bookmarks/:id"
+         :delete (into authenticated endpoints/single-bookmark-chain)
+         :route-name ::endpoints/delete-bookmark]
 
       ;; Unrestricted at the route level, but performs local authorization.
       ;; Refer to the source code of the 'search-handler' for details.

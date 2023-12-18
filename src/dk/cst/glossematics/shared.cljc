@@ -35,19 +35,6 @@
         (log/warn "Could not parse date: " date-str)))
     date-str))
 
-(defn remove-nil-vals
-  "Remove kvs from `m` where v is nil.
-
-  Asami treats a nil v different from an absent v in an input entity. The former
-  comes out as :tg/nil in queries while the latter comes out as a true nil."
-  [m]
-  (into {} (remove (comp nil? second) m)))
-
-(defn capitalize-all
-  "Capitalise every word in `s` (not just the first) and normalise spaces."
-  [s]
-  (str/trim (str/join " " (map str/capitalize (str/split s #"\s+")))))
-
 (defn local-name
   "Use the local name version of `s`, i.e. without a clarifying entity type."
   [s]
@@ -106,11 +93,6 @@
         ret))))
 
 (comment
-  ;; These should all be true
-  (= (capitalize-all "ACTA JUTLANDICA")
-     (capitalize-all "Acta Jutlandica")
-     (capitalize-all " acta  jutlandica"))
-
   (single (assertions->user-ids {:attrs {"eduPersonTargetedID" #{"glen"}}}))
   (single (assertions->user-ids {:attrs {"eduPersonTargetedID" #{}}}))
 

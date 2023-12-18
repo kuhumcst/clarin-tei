@@ -22,11 +22,7 @@
             [dk.cst.glossematics.frontend.page.reader :as reader]))
 
 (def routes
-  [["/tei"
-    {:name  ::main/page
-     :title "Glossematics"
-     :page  main/page}]
-   ["/tei/privacy"
+  [["/tei/privacy"
     {:name  ::privacy/page
      :title ::privacy
      :page  privacy/page}]
@@ -100,25 +96,20 @@
   "A container component that wraps the various pages of the app."
   []
   (let [{:keys [page name]} (:data @state/location)
-        authenticated? @state/authenticated?
+        #_#_path           (fshared/current-path)
+        #_#_authenticated? @state/authenticated?
+        #_#_user           (shared/assertions->user-id state/assertions)
+        #_#_{:keys [db/ident] :as bookmark} (get @state/bookmarks path)
         fetching?      (not-empty @state/fetches)
-        reader?        (= name ::reader/page)
-        compact?       @state/compact
-        tr             (i18n/->tr)
-        bookmarks      @state/bookmarks
-        user           (shared/assertions->user-id state/assertions)
-        path           (fshared/current-path)
-        {:keys [db/ident] :as bookmark} (get bookmarks path)]
+        tr             (i18n/->tr)]
     ;; A containing div is currently needed for the timeline to work properly.
     [:div#shell {:class [(when fetching?
-                           "fetching")
-                         (when compact?
-                           "compact")]}
+                           "fetching")]}
      [:header
       [:h1
-       [:a {:href  (href ::main/page)
+       [:a {:href  (href ::search/page)
             :title (tr ::main-caption)}
-        "Glossematics"]
+        "TEI reader"]
        [:button.language {:title    (tr ::language-caption)
                           :on-click (fn [_]
                                       (let [v (swap! state/language lang "da")]
@@ -127,28 +118,18 @@
                                             (fshared/location->page-title)
                                             (fshared/set-title!))))}
         (tr ::language-flag)]]
-      [:div.toggle-compact {:style    {:cursor (if @state/compact
-                                                 "s-resize"
-                                                 "n-resize")}
-                            :on-click (fn [e]
-                                        (swap! state/compact not))}]
       [:nav
-       [:a {:href      (href ::search/page)
-            :title     (tr ::search-caption)
-            :tab-index (if authenticated? "0" "-1")         ; for accessibility
-            :disabled  (not authenticated?)}
-        (mark-first (tr ::search))]
-       [:input.bookmark {:type      "checkbox"
-                         :disabled  (not authenticated?)
-                         :checked   (boolean bookmark)
-                         :title     (if bookmark
-                                      (tr ::rem-bookmark-caption)
-                                      (tr ::add-bookmark-caption))
-                         :on-change (fn [e]
-                                      (.preventDefault e)
-                                      (if bookmark
-                                        (api/del-bookmark user path ident)
-                                        (api/add-bookmark user path name)))}]]]
+       #_[:input.bookmark {:type      "checkbox"
+                           :disabled  (not authenticated?)
+                           :checked   (boolean bookmark)
+                           :title     (if bookmark
+                                        (tr ::rem-bookmark-caption)
+                                        (tr ::add-bookmark-caption))
+                           :on-change (fn [e]
+                                        (.preventDefault e)
+                                        (if bookmark
+                                          (api/del-bookmark user path ident)
+                                          (api/add-bookmark user path name)))}]]]
      [:main
       [:img.loading-indicator {:alt ""                      ; signal decorative
                                :src "/images/loading.svg"}]
@@ -180,9 +161,9 @@
   []
   (let [{:keys [name->id]} @state/search
         bookmarks @state/bookmarks]
-    (when (and (not bookmarks) state/assertions)
-      (when-let [user (shared/assertions->user-id state/assertions)]
-        (fetch-bookmarks! user)))
+    #_(when (and (not bookmarks) state/assertions)
+        (when-let [user (shared/assertions->user-id state/assertions)]
+          (fetch-bookmarks! user)))
     (when-not name->id
       (search/fetch-metadata!))))
 

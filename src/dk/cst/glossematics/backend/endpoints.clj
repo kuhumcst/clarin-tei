@@ -12,7 +12,6 @@
             [dk.cst.glossematics.db :as db :refer [conn pconn]] ; TODO: attach this in an interceptor instead, reducing decoupling?
             [dk.cst.glossematics.db.search :as db.search]
             [dk.cst.glossematics.shared :refer [parse-date utc-dtf]]
-            [dk.cst.glossematics.static-data :as sd]
             [dk.cst.pedestal.sp.auth :as sp.auth]
             [dk.cst.glossematics.shared :as shared])
   (:import [java.util UUID]))
@@ -267,8 +266,8 @@
                 _]
          :as   params} (update-vals query-params (comp ?keywordize pipe-split))
         wildcard _                                          ; _ is used for noop
-        _        (when-not (whitelisted (:entity/type params))
-                   (sp.auth/enforce-condition request :authenticated))
+        #_#__        (when-not (whitelisted (:entity/type params))
+                       (sp.auth/enforce-condition request :authenticated))
         entity   (-> (handle-file-extension params)
                      (dissoc :_ :limit :offset :order-by :from :to)
                      (cond-> wildcard (assoc '_ wildcard)))

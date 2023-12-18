@@ -318,7 +318,7 @@
   "Change the `document` currently displayed in the reader.
 
   Optionally, an `xml` string may be provided to parse as a TEI document.
-  This feature is used to preview local TEI documents in Glossematics."
+  This feature is used to preview local TEI documents in the browser."
   [document & [xml]]
   (set! *current-fetch* document)
   ;; Should not display old state while waiting for the network request.

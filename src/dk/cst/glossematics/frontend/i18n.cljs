@@ -87,6 +87,7 @@
    ::frontend/unknown-page         {:en [:p "Unknown page."]
                                     :da [:p "Ukendt side."]}})
 
+;; TODO: keep this around while salvaging content from here
 (def main-page-translations
   {::main/logged-in-status   {:en [:p "You are currently " [:em "logged in"] " via your institution"
                                    " (" [:a {:href "/tei/bookmarks"} "bookmarks"] ")."]
@@ -107,106 +108,12 @@
    ::main/log-in             {:en "Log in"
                               :da "Log ind"}
    ::main/log-in-long        {:en "Log in to Glossematics using your institution"
-                              :da "Log ind i Glossematics vha. din institution"}
-   ::main/introduction       {:en [:<>
-                                   [:section
-                                    [:h2 "Introduction"]
-                                    [:img.text-illustration.right.bg1 {:src   "/images/hjelmslev_transparent.png"
-                                                                       :title "Louis Hjelmslev"
-                                                                       :alt   "Louis Hjelmslev portrait"}]
-                                    [:p
-                                     "The Royal Danish Library in Copenhagen contains a multitude of letter correspondences
-                                     between leading characters in the domain of linguistics,
-                                     e.g. Louis Hjelmslev and Hans Jørgen Uldall.
-                                     These individuals were key to the creation of the Glossematics theory of linguistics
-                                     as an area of note within linguistic structuralism."]
-                                    [:p
-                                     "The letters and other relevant documents have been made available on this website to both Danish and international researchers.
-                                     The documents comprise anything from highly topical discussions to Christmas (and other) greetings
-                                     as well as day-to-day chatter.
-                                     This allows researchers to take a deep dive into linguistic structuralism,
-                                     investigating it from every relevant angle."]]
-                                   [:section
-                                    [:h2 "Get access"]
-                                    [:img.text-illustration.left.bg2 {:src   "/images/efj_transparent.png"
-                                                                      :title "Eli Fischer-Jørgensen"
-                                                                      :alt   "Eli Fischer-Jørgensen portrait"}]
-                                    [:p
-                                     "You may always view the timeline and the bibliography pages. "
-                                     "However, the search page and the facsimile reader "
-                                     "are not available unless you first log in. "
-                                     "Once authenticated, you may search all documents within our archive."]
-                                    [:p
-                                     "Glossematics allows you to log in through your own institution "
-                                     "as long as it is part of a common educational federation. "
-                                     "Clicking 'Log in' above will direct you to "
-                                     [:abbr {:title "Where Are You From"} "WAYF"] " "
-                                     "where you may choose your institution from a list (if applicable). "]]
-                                   [:section
-                                    [:h2 "Topic pages"]
-                                    [:p
-                                     "We try to collect important material under different topics pages:"]
-                                    [:ul
-                                     [:li [:a {:href "/tei/tol-lectures"} "Lectures on the theory of language"]]]]
-                                   [:section
-                                    [:h2 "Correspondences"]
-                                    [:img.text-illustration.right.bg3 {:src   "/images/pd_transparent.png"
-                                                                       :title "Paul Diderichsen"
-                                                                       :alt   "Paul Diderichsen portait"}]
-                                    [:p
-                                     "Below are exchanges that were important to the theory of Glossematics:"]]]
-                              :da [:<>
-                                   [:section
-                                    [:h2 "Introduktion"]
-                                    [:img.text-illustration.right.bg1 {:src   "/images/hjelmslev_transparent.png"
-                                                                       :title "Louis Hjelmslev"
-                                                                       :alt   "Louis Hjelmslev portræt"}]
-                                    [:p
-                                     "På Det Kongelige Bibliotek i København findes der et væld af brevkorrespondancer
-                                     mellem de førende figurer i det sprogvidenskabelige miljø,
-                                     eksempelvis Louis Hjelmslev og Hans Jørgen Uldall.
-                                     Disse var centrale inden for dannelsen af sprogteorien Glossematik,
-                                     som et særligt område inden for strukturel lingvistik."]
-                                    [:p
-                                     "På denne hjemmeside gør vi disse breve og andre relevante dokumenter tilgængelige for danske og udenlandske forskere.
-                                     Dokumenterne kan være alt fra fagligt skarpe diskussioner til julehilsner og lykønskninger
-                                     samt aftaler om lavpraktiske emner.
-                                     Dette giver forskere mulighed for at dykke dybere ned i strukturalismen
-                                     og undersøge samtlige relevante facetter."]]
-                                   [:section
-                                    [:h2 "Få adgang"]
-                                    [:img.text-illustration.left.bg2 {:src   "/images/efj_transparent.png"
-                                                                      :title "Eli Fischer-Jørgensen"
-                                                                      :alt   "Eli Fischer-Jørgensen portræt"}]
-                                    [:p
-                                     "Du kan altid se tidslinjen og bibliografi-siderne. "
-                                     "Søgesiden og facsimile-læseren "
-                                     "vil dog ikke være tilgængelige før du logger ind. "
-                                     "Når du har logget ind, kan du fremsøge alle dokumenter i vores arkiv."]
-                                    [:p
-                                     "Glossematics lader dig logge ind via din egen institution, "
-                                     "så længe den er en del af en kendt uddannelsesmæssig føderation. "
-                                     "Ved at klikke 'Log ind' ovenover kommer du videre til "
-                                     [:abbr {:title "Where Are You From"} "WAYF"] " "
-                                     "hvor du kan vælge din institution fra en liste, når førnævnte gælder. "]]
-                                   [:section
-                                    [:h2 "Temasider"]
-                                    [:p
-                                     "Vi forsøger at samle vigtigt materiale under forskellige temasider:"]
-                                    [:ul
-                                     [:li [:a {:href "/tei/tol-lectures"} "Forelæsninger over sprogteori"]]]]
-                                   [:section
-                                    [:h2 "Korrespondancer"]
-                                    [:img.text-illustration.right.bg3 {:src   "/images/pd_transparent.png"
-                                                                       :title "Paul Diderichsen"
-                                                                       :alt   "Paul Diderichsen portræt"}]
-                                    [:p
-                                     "Nedenfor er brevvekslinger der havde betydning for Glossematikken:"]]]}})
+                              :da "Log ind i Glossematics vha. din institution"}})
 
 (def privacy-page-translations
   {::privacy/text {:da [:<>
                         [:p
-                         "Glossematics indsamler ikke data om sine brugere til statistik eller andet.
+                         "Clarin.dk indsamler ikke data om sine brugere til statistik eller andet.
                         Dog skal du forvente at dit besøg på siden logges, og at der lagres cookies
                         og andet data i det omfang du bruger siden."]
                         [:p
@@ -221,7 +128,7 @@
                         De datapunkter vi modtager, kan du se under BRUGERDETALJER på forsiden."]]
                    :en [:<>
                         [:p
-                         "Glossematics does not collect data about its users for statistics or other purposes.
+                         "Clarin.dk does not collect data about its users for statistics or other purposes.
                          However, you should expect that your visit to this page is logged and that cookies
                          and other data will be stored according to your site usage."]
                         [:p
@@ -401,7 +308,6 @@
 
 (def dicts
   (reduce into-dicts {} (merge frontend-translations
-                               main-page-translations
                                privacy-page-translations
                                reader-page-translations
                                search-page-translations

@@ -72,12 +72,6 @@
             (merge (select-keys state/query-defaults [:limit :offset])
                    {'_ ref})))
 
-(defn correspondence-href
-  [ref1 ref2]
-  (rfe/href ::search/page {}
-            (merge (select-keys state/query-defaults [:limit :offset])
-                   {:correspondent (str ref1 "|" ref2)})))
-
 (defn index-href
   [entity-type]
   (rfe/href ::index/page {:kind (name entity-type)}))

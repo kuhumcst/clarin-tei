@@ -43,26 +43,7 @@
 
    :document/condition
    ;; TODO: move translations to i18n ns??
-   {:en->da  {"transcribed"  "transkriberet"
-
-              "original"     "original"
-              "photocopy"    "fotokopi"
-              "carbon copy"  "gennemslagspapir"
-
-              ;; publish state
-              "published"    "publiceret"
-              "unpublished"  "upubliceret"
-              "draft"        "udkast"
-
-              ;; form
-              "postcard"     "postkort"
-              "document"     "dokument"
-              "letter"       "brev"
-
-              ;; hand
-              "stenographed" "stenografi"
-              "typed"        "maskinskrevet"
-              "handwritten"  "håndskrevet"}
+   {:en->da  {"transcribed" "transkriberet"}
     :img-src "/images/paper-sheet-svgrepo-com.svg"}})
 
 (def en-attr->da-attr
