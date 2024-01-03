@@ -1,12 +1,9 @@
 (ns dk.clarin.tei.db
   "Functions for populating & querying the Glossematics Asami database."
-  (:require [clojure.string :as str]
-            [clojure.java.io :as io]
-            [asami.core :as d]
+  (:require [asami.core :as d]
             [dk.clarin.tei.static-data :as sd]
             [io.pedestal.log :as log]
             [dk.clarin.tei.shared :as shared]
-            [dk.clarin.tei.backend.shared :as bshared]
             [dk.clarin.tei.db.file :as db.file]
             [dk.clarin.tei.db.tei :as db.tei]))
 
@@ -43,6 +40,13 @@
          [?e :file/extension "xml"]
          [?e :file/path ?path]]
        conn))
+
+(defn dk5-ids
+  [conn]
+  (set (d/q '[:find [?id ...]
+              :where
+              [?e :document/dk5 ?id]]
+            conn)))
 
 (defn bookmarks
   [conn assertions author]
@@ -102,6 +106,7 @@
   (bootstrap! {:files-dir "/Users/rqf595/everyman-corpus"
                :db-dir    "/Users/rqf595/.clarin-tei/db"})
   (count (tei-files conn))
+  (dk5-ids conn)
 
   ;; Delete everything in persisted storage -- for development use.
   (d/delete-database (puri "/Users/rqf595/.clarin-tei/db"))

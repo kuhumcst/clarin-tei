@@ -26,6 +26,7 @@
                       (or
                         [?p :entity/type :entity.type/person]
                         [?p :entity/type :entity.type/century]
+                        [?p :entity/type :entity.type/category]
                         [?p :entity/type :entity.type/language] ;TODO: keep?
 
                         ;; TODO: remove?
@@ -206,7 +207,7 @@
       {:total (count matches)})))
 
 (comment
-  (defonce conn (d/connect "asami:mem://glossematics"))
+  (defonce conn (d/connect "asami:mem://clarin-tei"))
 
   (search-metadata conn)
 

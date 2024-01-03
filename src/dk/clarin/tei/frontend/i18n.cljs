@@ -269,6 +269,8 @@
                                 :da "Sprog"}
    :entity.type/century        {:en "Century"
                                 :da "Århundrede"}
+   :entity.type/category       {:en "Category"
+                                :da "Kategori"}
 
    :file/name                  {:en "file"
                                 :da "fil"}
@@ -277,6 +279,8 @@
 
    :document/century           {:en "century"
                                 :da "århundrede"}
+   :document/dk5               {:en "DK5"
+                                :da "DK5"}
    :document/title             {:en "title"
                                 :da "titel"}
    :document/author            {:en "author"

@@ -22,6 +22,7 @@
    :title         '[:titleStmt {} [:title {} title] ???]
    :notes         '[:notesStmt {} [:note notes]]
    :date          '[:creation [:date {:when date}]]
+   :dk5           '[:domain {:type "general"} dk5]
 
    :author        '[:author [:name {:ref author} author-name]]
    :place         '[:msIdentifier {}
@@ -151,13 +152,17 @@
           (quot 100)))
 
 (defn document-triples
-  [filename {:keys [facsimile author date] :as result}]
+  [filename {:keys [facsimile author date dk5] :as result}]
   (let [triple    (partial single-triple result filename)
         {:syms [author author-name]} (first author)
         date'     (get (first date) 'date)
         cent      (century date')
         cent-id   (str "#c" cent)
-        cent-name (str cent "00-tallet")]
+        cent-name (str cent "00-tallet")
+        dk5-index (-> (first dk5)
+                      (get 'dk5)
+                      (->> (re-find #"^[\d-.]+")
+                           (str "#dk5")))]
     (with-meta
       (disj
         (reduce
@@ -168,6 +173,9 @@
             [(triple valid? :document/title :title)
              (triple valid? :document/language :language)
              (triple valid? :document/notes :notes)
+             (when dk5-index
+               [filename :document/dk5 dk5-index])
+
              (if cent
                [filename :document/century cent-id]
                [filename :document/author "#unknown_century"])
