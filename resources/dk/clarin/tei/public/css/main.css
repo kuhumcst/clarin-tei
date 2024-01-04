@@ -211,17 +211,16 @@ header > nav > a + a {
      margin-left: var(--margin-l);
 }
 
-header > h1 > button.language {
+footer button.language {
     padding: 0;
     background: none;
     border: none;
     cursor: pointer;
     margin-left: var(--margin);
     font-size: 24px;
-    opacity: 0.33;
 }
 
-header button.language:hover {
+footer button.language:hover {
     animation: wiggle 2s ease-in;
     opacity: 1;
 }

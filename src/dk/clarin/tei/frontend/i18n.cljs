@@ -40,10 +40,6 @@
                                     :da "Søg"}
    ::frontend/search-caption       {:en "Find documents in our archive"
                                     :da "Find dokumenter i vores arkiv"}
-   ::frontend/timeline             {:en "Timeline"
-                                    :da "Tidslinje"}
-   ::frontend/timeline-caption     {:en "Explore the life Louis Hjelmslev"
-                                    :da "Udforsk Louis Hjelmslevs liv"}
    ::frontend/bibliography         {:en "Bibliography"
                                     :da "Bibliografi"}
    ::frontend/bibliography-caption {:en "View relevant works"

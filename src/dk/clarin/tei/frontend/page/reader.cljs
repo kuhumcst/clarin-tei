@@ -32,34 +32,6 @@
   "The complete set of styles (widgets and TEI documents)."
   (str css/shadow-style "\n\n/*\n\t === tei.css ===\n*/\n" tei-css))
 
-;; TODO: convert to i18n ns translations?
-(defn da-type
-  [type]
-  (let [da?     (= "da" @state/language)
-        type->s (if da?
-                  {"conference" "denne konference"
-                   "term"       "dette begreb"
-                   "language"   "dette sprog"
-                   "org"        "denne organisation"
-                   "pers"       "denne person"
-                   "place"      "dette sted"
-                   "publ"       "denne udgivelse"
-                   "receiver"   "denne modtager"
-                   "sender"     "denne afsender"}
-                  {"conference" "this conference"
-                   "term"       "this term"
-                   "language"   "this language"
-                   "org"        "this organisation"
-                   "pers"       "this person"
-                   "place"      "this place"
-                   "publ"       "this publication"
-                   "receiver"   "this recipient"
-                   "sender"     "this sender"})]
-    (if da?
-      (str "Vis mere om " (type->s type "dette"))
-      (str "Show more about " (type->s type "this")))))
-
-
 (def simplify-c
   (cup/->transformer
     '[:c {} ???]
@@ -77,25 +49,6 @@
         (if (every? string? content)
           (apply str content)
           (into [:span] content))))))
-
-(defn merge-strings*
-  [coll]
-  (loop [ret  []
-         [x & coll] coll
-         strs []]
-    (cond
-      (string? x)
-      (recur ret coll (conj strs x))
-
-      (some? x)
-      (if (not-empty strs)
-        (recur (into ret [(apply str strs) x]) coll [])
-        (recur (conj ret x) coll strs))
-
-      (nil? x)
-      (if (not-empty strs)
-        (conj ret (apply str strs))
-        ret))))
 
 (def merge-strings
   (cup/->transformer
@@ -124,26 +77,6 @@
                     (let [[tag attr & content] (rewrite-inner list-item)]
                       (when (= tag :tei-item)               ; safeguard
                         (into [:li] content))))))))
-
-(def ref-as-anchor
-  (cup/->transformer
-    '[_ {:ref  ref
-         :type ?type} ???]
-
-    (fn [{:syms [ref ?type]}]
-      [:a {:href  (fshared/search-href ref)
-           :title (da-type ?type)}
-       [:slot]])))
-
-(def language-as-anchor
-  (cup/->transformer
-    '[_ {:type "language"
-         :n    ref} ???]
-
-    (fn [{:syms [ref]}]
-      [:a {:href  (fshared/search-href ref)
-           :title (da-type "language")}
-       [:slot]])))
 
 (def date-as-time
   (cup/->transformer
@@ -276,9 +209,7 @@
 
 (def inner-stage
   "Makes virtual changes to TEI document features using the shadow DOM."
-  {:transformers [#_ref-as-anchor
-                  #_language-as-anchor
-                  lb-as-br
+  {:transformers [lb-as-br
                   list-as-ul
                   date-as-time]
    :wrapper      shadow-dom-wrapper
@@ -400,38 +331,10 @@
         (swap! state/search assoc :i n)
         (rfe/push-state ::page {:document (:file/name (nth results n))})))))
 
-;; TODO: redo the .search-result__paging CSS now that it fills two roles
-(defn reader-paging
-  [tr results i {:keys [offset limit] :as query-state}]
-  [:div.search-result__paging
-   [:div.input-row
-    [:button {:disabled (= i offset 0)
-              :on-click #(nth-document! (dec i))}
-     [tr ::search-page/prev]]
-    [:select {:on-change #(nth-document! (js/parseInt (.-value (.-target %))))
-              :value     i}
-     (when (> offset 0)
-       [:option {:value -1}
-        (tr ::prev-results)])
-     (for [entity results
-           :let [n    (:i (meta entity))
-                 file (:file/name entity)]]
-       [:option {:key   file
-                 :value n}
-        file])
-     (when (< (+ offset limit) (:total (meta results)))
-       [:option {:value (+ offset limit)}
-        (tr ::next-results)])]
-    [:button {:disabled (= (dec (:total (meta results)))
-                           (+ i offset))
-              :on-click #(nth-document! (inc i))}
-     [tr ::search-page/next]]]])
-
 (defn page
   []
   (let [{:keys [hiccup tei document entity]} @state/reader
-        {:keys [id->name results i] :as search-state} @state/search
-        query-state        @state/query
+        {:keys [id->name] :as search-state} @state/search
         tr                 (i18n/->tr)
         location*          @state/location
         current-document   (get-in location* [:path-params :document])
@@ -440,7 +343,6 @@
         new-document?      (not= document current-document)
         {:keys [document/condition document/facsimile]} entity
         body?              (= condition "transcribed")
-        paging?            false #_(and i (> (count results) 1))
         pdf-src            (and (not body?)
                                 (string? facsimile)
                                 (str/ends-with? facsimile ".pdf")
@@ -465,9 +367,6 @@
                                 (.then (.text file)
                                        (fn [s]
                                          (set-content! (.-name file) s)))))}])
-
-     (when paging?
-       [reader-paging tr results i query-state])
 
      (when hiccup
        (if local-preview?
@@ -512,7 +411,4 @@
                             (into
                               [[[tr ::transcription]
                                 ^{:key tei} [rescope/scope hiccup tei-css]]])))}
-           {:id "tei-tabs"}]]))
-
-     (when paging?
-       [reader-paging tr results i query-state])]))
+           {:id "tei-tabs"}]]))]))

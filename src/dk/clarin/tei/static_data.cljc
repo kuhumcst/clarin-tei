@@ -10,7 +10,7 @@
    {:img-src "/images/hourglass-2.svg"}
 
    :entity.type/category
-   {:img-src "/images/archive-svgrepo-com.svg"}})
+   {:img-src "/images/book-fill.svg"}})
 
 ;:entity.type/language
 ;{:img-src "/images/speech-bubble-svgrepo-com.svg"}})

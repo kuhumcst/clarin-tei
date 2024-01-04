@@ -47,30 +47,6 @@
 (def lang-neg
   (->language-negotiation-ic ["da" "en"]))
 
-(defn timeline-handler
-  "A handler to serve individual files."
-  [{:as request}]
-  (let [events (->> (d/q '[:find ?type ?title ?description ?start ?end
-                           :where
-                           [?e :event/type ?type]
-                           [?e :event/title ?title]
-                           [?e :event/start ?start]
-                           (optional [?e :event/description ?description])
-                           (optional [?e :event/end ?end])]
-                         conn)
-                    (map (fn [[?type ?title ?description ?start ?end]]
-                           (cond-> {:type        ?type
-                                    :title       ?title
-                                    :description ?description
-                                    :start       ?start}
-                             ?end (assoc
-                                    :isDuration true
-                                    :end ?end)))))]
-    {:status  200
-     :body    (transito/write-str events)
-     :headers {"Content-Type"  "application/transit+json"
-               "Cache-Control" one-month-cache}}))
-
 (defn file-handler
   "A handler to serve individual files."
   [{:keys [path-params] :as request}]
@@ -309,9 +285,6 @@
         (update :headers assoc
                 "Content-Type" "application/transit+json"
                 "Cache-Control" one-day-cache))))
-
-(def timeline-chain
-  [timeline-handler])
 
 (def file-chain
   [path-params-decoder

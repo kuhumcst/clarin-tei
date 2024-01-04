@@ -1,14 +1,13 @@
 (ns dk.clarin.tei.frontend
   "The central namespace of the frontend client; defines frontend routing."
   (:require [clojure.string :as str]
-            [cljs.pprint :refer [pprint]]
             [reagent.dom :as rdom]
             [reagent.cookies :as cookie]
             [reitit.frontend :as rf]
             [reitit.frontend.easy :as rfe :refer [href]]
             [time-literals.read-write :as tl]
             [dk.cst.stucco.util.css :as css]
-            [dk.cst.pedestal.sp.auth :as sp.auth]
+            #_[dk.cst.pedestal.sp.auth :as sp.auth]
             [dk.clarin.tei.shared :as shared]
             [dk.clarin.tei.frontend.i18n :as i18n]
             [dk.clarin.tei.frontend.shared :as fshared]
@@ -35,10 +34,10 @@
                    (do
                      (search/?query-reset!)
                      (fshared/set-title! (search/page-title)))))}]
-   ["/tei/bookmarks"
-    {:name  ::bookmarks/page
-     :title ::bookmarks
-     :page  bookmarks/page}]
+   #_["/tei/bookmarks"
+      {:name  ::bookmarks/page
+       :title ::bookmarks
+       :page  bookmarks/page}]
    ["/tei/index/:kind"
     {:name  ::index/page
      :title (fn [m]
@@ -92,31 +91,31 @@
     ;; A containing div is currently needed for the timeline to work properly.
     [:div#shell {:class [(when fetching?
                            "fetching")]}
-     [:header
-      [:h1
-       [:a {:href  (href ::search/page)
-            :title (tr ::main-caption)}
-        "TEI reader"]
-       [:button.language {:title    (tr ::language-caption)
-                          :on-click (fn [_]
-                                      (let [v (swap! state/language lang "da")]
-                                        (cookie/set! :language v cookie-opts)
-                                        (-> @state/location
-                                            (fshared/location->page-title)
-                                            (fshared/set-title!))))}
-        (tr ::language-flag)]]
-      [:nav
-       #_[:input.bookmark {:type      "checkbox"
-                           :disabled  (not authenticated?)
-                           :checked   (boolean bookmark)
-                           :title     (if bookmark
-                                        (tr ::rem-bookmark-caption)
-                                        (tr ::add-bookmark-caption))
-                           :on-change (fn [e]
-                                        (.preventDefault e)
-                                        (if bookmark
-                                          (api/del-bookmark user path ident)
-                                          (api/add-bookmark user path name)))}]]]
+     #_[:header
+        [:h1
+         [:a {:href  (href ::search/page)
+              :title (tr ::main-caption)}
+          "TEI reader"]
+         [:button.language {:title    (tr ::language-caption)
+                            :on-click (fn [_]
+                                        (let [v (swap! state/language lang "da")]
+                                          (cookie/set! :language v cookie-opts)
+                                          (-> @state/location
+                                              (fshared/location->page-title)
+                                              (fshared/set-title!))))}
+          (tr ::language-flag)]]
+        [:nav
+         #_[:input.bookmark {:type      "checkbox"
+                             :disabled  (not authenticated?)
+                             :checked   (boolean bookmark)
+                             :title     (if bookmark
+                                          (tr ::rem-bookmark-caption)
+                                          (tr ::add-bookmark-caption))
+                             :on-change (fn [e]
+                                          (.preventDefault e)
+                                          (if bookmark
+                                            (api/del-bookmark user path ident)
+                                            (api/add-bookmark user path name)))}]]]
      [:main
       [:img.loading-indicator {:alt ""                      ; signal decorative
                                :src "/images/loading.svg"}]
@@ -125,6 +124,15 @@
         [tr ::unknown-page])]
      [:footer
       [:section.links
+       [:button.language {:title    (tr ::language-caption)
+                          :on-click (fn [_]
+                                      (let [v (swap! state/language lang "da")]
+                                        (cookie/set! :language v cookie-opts)
+                                        (-> @state/location
+                                            (fshared/location->page-title)
+                                            (fshared/set-title!))))}
+        (tr ::language-flag)]
+       [:span " / "]
        [:a {:href "https://www.was.digst.dk/glossematics-dk"}
         (mark-first (tr ::a11y))]
        [:span " / "]
@@ -135,6 +143,7 @@
         (mark-first "Github")]]
       [:section.links
        [tr ::copyright]]]]))
+
 
 (defn fetch-bookmarks!
   "Fetches and post-processes metadata used to populate the search form."

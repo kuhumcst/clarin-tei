@@ -102,16 +102,6 @@
                   [(str full-name " — " (tr entity-type)) id]
                   original-kv)))]))
 
-(defn- rename-duplicates
-  "Rename duplicate keys in the `search-metadata` such that the name of every
-  entity has a 1:1 relationship with an entity ID."
-  [search-metadata]
-  (let [duplicates (-> search-metadata meta :duplicates)
-        rename     #(rename-duplicates* duplicates %)]
-    (println "Renamed" (count duplicates) "duplicate entities:"
-             (str/join ", " (sort duplicates)))
-    (into {} (map rename search-metadata))))
-
 (defn- ->name-kvs
   [name->id]
   (sort-by first name->id))
@@ -140,8 +130,7 @@
   []
   (.then (api/fetch "/search/metadata")
          (fn [{:keys [search-metadata top-30-kvs]}]
-           (let [search-metadata    (rename-duplicates search-metadata)
-                 name->id           (apply merge (vals search-metadata))
+           (let [name->id           (apply merge (vals search-metadata))
                  lowercase-name->id (update-keys name->id str/lower-case)
                  short-name->id     (short-names search-metadata top-30-kvs)
                  da-name->id        (merge name->id sd/da-attr->en-attr)

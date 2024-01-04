@@ -54,8 +54,7 @@
 
 (defn page
   []
-  (let [{:keys [id->name]} @state/search
-        tr (i18n/->tr)]
+  (let [tr (i18n/->tr)]
     [:article.main-page
      [user-section tr]
      [:div.text-content]]))
