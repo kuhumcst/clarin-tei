@@ -111,12 +111,15 @@
 
 ;; TODO: add year/date?
 (def search-rels
-  {:document/author    {:compatible #{:entity.type/person}}
-   :document/century   {:compatible #{:entity.type/century}}
-   :document/dk5       {:compatible #{:entity.type/category}}
+  {:document/author     {:compatible #{:entity.type/person}}
+   :document/translator {:compatible #{:entity.type/person}}
+   :document/editor     {:compatible #{:entity.type/person}}
+   :document/publisher  {:compatible #{:entity.type/person}}
+   :document/century    {:compatible #{:entity.type/century}}
+   :document/dk5        {:compatible #{:entity.type/category}}
 
    ;; Special relations -- various strings treated as searchable entities.
-   :document/condition {:compatible #{:document/condition}}})
+   :document/condition  {:compatible #{:document/condition}}})
 
 (def order-rels
   {:document/year {:type nil}                               ; not supported

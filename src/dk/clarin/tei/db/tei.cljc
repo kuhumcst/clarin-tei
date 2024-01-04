@@ -6,8 +6,7 @@
             #?(:clj  [io.pedestal.log :as log]
                :cljs [lambdaisland.glogi :as log])
             [dk.cst.cuphic :as cup]
-            [dk.cst.cuphic.xml :as xml]
-            [dk.clarin.tei.static-data :as sd]))
+            [dk.cst.cuphic.xml :as xml]))
 
 ;; For some reason, the Clarin TEI files contain extra (invalid) declarations
 ;; which completely break parsing in the browser.
@@ -15,43 +14,20 @@
   [xml]
   (str/replace xml #"<\?oxygen .+\?>\s?" ""))
 
-;; TODO: is ?optional switched with non-optional? see :document-type
-;; TODO: the ... pattern not working correctly in Cuphic?
 (def header-patterns
-  {:language      '[:language {:ident language} ???]
-   :title         '[:titleStmt {} [:title {} title] ???]
-   :notes         '[:notesStmt {} [:note notes]]
-   :date          '[:creation [:date {:when date}]]
-   :dk5           '[:domain {:type "general"} dk5]
-
-   :author        '[:author [:name {:ref author} author-name]]
-   :place         '[:msIdentifier {}
-                    [:placeName {:ref place} _]
-                    ???]
-   :settlement    '[:settlement {:ref settlement} ???]
-   :repository    '[:repository {:ref repository} title]
-   :collection    '[:collection {} collection]
-   :object-desc   '[:objectDesc {:form form}
-                    [:supportDesc {}
-                     [:support {} support]
-                     [:extent {}
-                      [:note {} page-count]]]]
-   :hand-desc     '[:handDesc {} [:p {} hand]]
-   :ms-desc       '[:msDesc {:ana publish-state} ???]
-   :relevant-for  '[:ref {:type   "relevant_for"
-                          :target target}]
-
-   ;; Explodes [:correspDesc ...] into its constituent parts.
-   :sender        '[:correspAction {:type "sent"}
-                    ??? [:persName {:ref sender} ???] ???]
-   :sender-loc    '[:correspAction {:type "sent"}
-                    ??? [:placeName {:ref sender-loc}] ???]
-   :sent-at       '[:correspAction {:type "sent"}
-                    ??? [:date {} sent-at] ???]
-   :recipient     '[:correspAction {:type "received"}
-                    ??? [:persName {:ref recipient} ???] ???]
-   :recipient-loc '[:correspAction {:type "received"}
-                    ??? [:placeName {:ref recipient-loc}] ???]})
+  {:language    '[:language {:ident language} ???]
+   :title       '[:titleStmt {} [:title {} title] ???]
+   :notes       '[:notesStmt {} [:note notes]]
+   :date        '[:creation [:date {:when date}]]
+   :dk5         '[:domain {:type "general"} dk5]
+   :urn         '[:idno {:type "urn"} urn]
+   :translators '[:respStmt {:n "translators"}
+                  [:resp "Translated by"]
+                  [:name {:ref translator} translator-name]]
+   :publisher   '[:publisher {:n publisher} publisher-name]
+   :editor      '[:editor
+                  [:name {:ref editor} editor-name]]
+   :author      '[:author [:name {:ref author} author-name]]})
 
 (def text-patterns
   {:facsimile '[:pb {:facs facs}]})
@@ -73,51 +49,6 @@
   (not (or (str/blank? s)
            (placeholder? s))))
 
-(defn valid-int?
-  [s]
-  (and (valid? s)
-       (re-matches #"\d+" s)))
-
-(defn valid-id?
-  [s]
-  (and (valid? s)
-       ;; TODO: make Dorte streamline archive IDs in the TEI files
-       (or (str/starts-with? s "n")                         ; used for archives
-           (str/starts-with? s "#n"))
-       (or (re-matches #"#ns..." s)                         ; refer to sprog.txt
-           (re-find #"\d$" s))))
-
-(defn valid-date?
-  [s]
-  (re-matches #"\d\d\d\d-\d\d-\d\d" s))
-
-;; Since Dorte's IDs sometimes have a prefixed # and sometimes don't
-(defn fix-id
-  [id]
-  (if (str/starts-with? id "#")
-    id
-    (str "#" id)))
-
-;; Since Heidi has been manually modifying some facsimile IDs to this standard.
-;; e.g. acc-1992_0005_030_Western_0110-tei-final.xml
-(defn fix-facsimile-id
-  [facsimile]
-  (cond
-    (str/starts-with? facsimile "facc-")
-    (subs facsimile 1)
-
-    (str/starts-with? facsimile "#facc-")
-    (str "#acc-" (subs facsimile 6))
-
-    :else facsimile))
-
-(def language-ref
-  {"en"  "#nseng"
-   "eng" "#nseng"                                           ; used in some TEI documents
-   "fr"  "#nsfre"
-   "da"  "#nsdan"
-   "de"  "#nsger"})
-
 (defn single-val
   [result k]
   (-> (get result k) first (get (symbol k))))
@@ -128,19 +59,15 @@
     (when (validation-fn v)
       [filename rel v])))
 
-(def parse-int
-  #?(:clj  parse-long
-     :cljs js/parseInt))
-
-(defn- support-triple
-  [filename v]
-  (if (get (-> sd/special-entity-types :document/condition :en->da) v)
-    [filename :document/condition v]
-    (log/info :tei/unsupported {:document/condition v})))
-
 (defn fix-full-name
   [s]
   (apply str (interpose " " (reverse (str/split s #", ")))))
+
+(defn fix-id
+  [id]
+  (if (not (str/starts-with? id "#"))
+    (str "#" id)
+    id))
 
 (def year-re
   #"^\d\d\d\d")
@@ -152,9 +79,12 @@
           (quot 100)))
 
 (defn document-triples
-  [filename {:keys [facsimile author date dk5] :as result}]
+  [filename {:keys [facsimile author editor publisher date dk5 translators] :as result}]
   (let [triple    (partial single-triple result filename)
         {:syms [author author-name]} (first author)
+        {:syms [editor editor-name]} (first editor)
+        {:syms [publisher publisher-name]} (first publisher)
+        {:syms [translator translator-name]} (first translators)
         date'     (get (first date) 'date)
         cent      (century date')
         cent-id   (str "#c" cent)
@@ -173,15 +103,22 @@
             [(triple valid? :document/title :title)
              (triple valid? :document/language :language)
              (triple valid? :document/notes :notes)
+             (triple valid? :document/urn :urn)
              (when dk5-index
                [filename :document/dk5 dk5-index])
+             (when (valid? translator)
+               [filename :document/translator (fix-id translator)])
+             (when (valid? editor)
+               [filename :document/editor (fix-id editor)])
+             (when (valid? publisher)
+               [filename :document/publisher (fix-id publisher)])
 
              (if cent
                [filename :document/century cent-id]
-               [filename :document/author "#unknown_century"])
+               [filename :document/century "#unknown_century"])
              (triple valid? :document/date :date)
              (if (valid? author)
-               [filename :document/author author]
+               [filename :document/author (fix-id author)]
                [filename :document/author "#unknown_person"])])
           [(for [{:syms [facs]} facsimile]
              [filename :document/facsimile facs])
@@ -191,14 +128,27 @@
               (when-not (re-matches year-re date')
                 [filename :document/date date'])])])
         nil)
-      {:entities [(when (valid? author-name)
-                    {:db/ident         author
-                     :entity/type      :entity.type/person
-                     :entity/full-name (fix-full-name author-name)})
-                  (when cent
-                    {:db/ident         cent-id
-                     :entity/type      :entity.type/century
-                     :entity/full-name cent-name})]})))
+      {:entities
+       (remove nil? [(when (valid? author-name)
+                       {:db/ident         (fix-id author)
+                        :entity/type      :entity.type/person
+                        :entity/full-name (fix-full-name author-name)})
+                     (when (valid? translator)
+                       {:db/ident         (fix-id translator)
+                        :entity/type      :entity.type/person
+                        :entity/full-name (fix-full-name translator-name)})
+                     (when (valid? editor)
+                       {:db/ident         (fix-id editor)
+                        :entity/type      :entity.type/person
+                        :entity/full-name (fix-full-name editor-name)})
+                     (when (valid? publisher)
+                       {:db/ident         (fix-id publisher)
+                        :entity/type      :entity.type/person
+                        :entity/full-name (fix-full-name publisher-name)})
+                     (when cent
+                       {:db/ident         cent-id
+                        :entity/type      :entity.type/century
+                        :entity/full-name cent-name})])})))
 
 (defn ->triples
   "Create Asami triples from either a `filepath` or `filename`/`content` combo."
@@ -227,7 +177,7 @@
   (century "2001")
   (century "2001-01-01")
   (fix-full-name "Horsens, Jens Albertsen")
-  (def example (io/file "/Users/rqf595/everyman-corpus/druk_1666/druk_1666_CTB.xml"))
+  (def example (io/file "/Users/rqf595/everyman-corpus/tve_tid_1577/tve_tid_1577_CTB.xml"))
   (xml/parse (remove-oxygen-declaration (slurp example)))
   (scrape-document (slurp "/Users/rqf595/everyman-corpus/druk_1666/druk_1666_CTB.xml"))
   (->triples "/Users/rqf595/everyman-corpus/druk_1666/druk_1666_CTB.xml")

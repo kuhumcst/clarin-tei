@@ -285,9 +285,17 @@
                                 :da "titel"}
    :document/author            {:en "author"
                                 :da "forfatter"}
+   :document/translator        {:en "translator"
+                                :da "oversætter"}
+   :document/editor            {:en "editor"
+                                :da "redaktør"}
+   :document/publisher         {:en "publisher"
+                                :da "udgiver"}
    :document/date              {:en "date"
                                 :da "dato"}
-   :document/year              {:en "år"
+   :document/urn               {:en "urn"
+                                :da "kapsel"}
+   :document/year              {:en "year"
                                 :da "år"}
    :document/language          {:en "language"
                                 :da "sprog"}
