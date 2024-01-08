@@ -19,7 +19,7 @@
 
   While the regular in-memory graph in 'conn' is a product of the input dataset,
   the persisted storage graph returned by 'pconn' is a smaller one consisting
-  only of user-submitted data, e.g. bookmarks or comments."
+  only of user-submitted data."
   [db-dir]
   (d/connect (puri db-dir)))
 
@@ -47,21 +47,6 @@
               :where
               [?e :document/dk5 ?id]]
             conn)))
-
-(defn bookmarks
-  [conn assertions author]
-  (d/q (cond-> '[:find [?ident ...]
-                 :in $ ?author
-                 :where
-                 [?e :entity/type :entity.type/bookmark]
-                 [?e :bookmark/author ?author]
-                 [?e :db/ident ?ident]]
-
-         ;; Authorization required for non-public bookmarks!
-         (not= author (shared/assertions->user-id assertions))
-         (conj '[?e :bookmark/visibility :public]))
-
-       conn author))
 
 (defn entity-triples
   "Find the triples in `conn` of the entity identified by `ident` (:db/ident)."
@@ -94,7 +79,7 @@
 (defn bootstrap!
   "Asynchronously bootstrap an in-memory Asami database from a `conf`."
   [{:keys [files-dir db-dir] :as conf}]
-  (log/info :bootstrap.asami/persisted-storage {:db (pconn db-dir)})
+  #_(log/info :bootstrap.asami/persisted-storage {:db (pconn db-dir)})
   (log-transaction! :files (db.file/file-entities files-dir))
   (let [file-entities  (map db.tei/file->entity (tei-files conn))
         named-entities (concat (mapcat (comp :entities meta) file-entities)
@@ -125,10 +110,6 @@
          [?e :file/name ?name]
          [?e :file/path ?path]]
        conn "druk_1666_CTB.xml")
-
-  (bookmarks (pconn "/Users/rqf595/.clarin-tei/db")
-             {}
-             "UNKNOWN")
 
   ;; Multiple names registered for the same person (very common)
   (d/entity conn "#np668")

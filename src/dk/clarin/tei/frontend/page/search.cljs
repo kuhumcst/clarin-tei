@@ -9,7 +9,6 @@
             [dk.clarin.tei.frontend.i18n :as i18n]
             [dk.clarin.tei.frontend.shared :as fshared]
             [dk.clarin.tei.frontend.state :as state]
-            [dk.clarin.tei.frontend.page.index :as index]
             [dk.clarin.tei.frontend.api :as api]
             [dk.clarin.tei.shared :as shared]))
 
@@ -625,16 +624,87 @@
         [:strong [:em n]]
         [:strong [:em [:a {:href (rfe/href ::page {} {'_ v})} k]]]])]))
 
+(defn str->index-group
+  "The canonical index group for a given `s`; used for group-by."
+  [s]
+  (or
+    (when-let [initial-num (re-find #"^\d+" s)]
+      initial-num)
+    (when s
+      (first (str/upper-case (fshared/str-sort-val s))))))
+
+(defn- index-groups
+  [search-metadata entity-type]
+  (let [entities (get search-metadata entity-type)]
+    (->> (if (= entity-type :entity.type/person)
+           (map (fn [[k v]]
+                  (let [k' (fshared/surname-first k)]
+                    [(if (str/ends-with? k' ", ") k k') v]))
+                entities)
+           entities)
+         (group-by (comp str->index-group first))
+         (remove (comp nil? first))
+         (sort-by first)
+         (into []))))
+
+(defn index-links
+  [tr & [current-type]]
+  (->> (sort-by (comp tr first) sd/real-entity-types)
+       (map (fn [[entity-type {:keys [img-src]}]]
+              (if (= current-type entity-type)
+                [:span [:img.entity-icon {:src img-src}]
+                 (tr entity-type)]
+                [:a {:href     (fshared/index-href entity-type)
+                     :disabled (= current-type entity-type)}
+                 [:img.entity-icon {:src img-src}]
+                 (tr entity-type)])))
+       (interpose " ")
+       (into [:p.index-links])))
+
+(defn skip-links
+  [groups]
+  (into [:p.index-page__skip-links]
+        (->> groups
+             (map (fn [[letter]]
+                    (let [fragment (str "#" (fshared/legal-id letter))]
+                      [:a {:href     fragment
+                           :on-click #(fshared/find-fragment fragment)}
+                       letter])))
+             (interpose ", ")
+             (vec))))
+
+(defn index-content
+  [kvs]
+  [:ul
+   (for [[k v] (sort-by (comp fshared/str-sort-val first) kvs)]
+     [:li {:key k}
+      [:a {:href (fshared/search-href v)}
+       (shared/local-name (str k))]])])
+
 (defn page
   []
-  (let [{:keys [results name->id id->name] :as search-state} @state/search
+  (let [{:keys [results name->id id->name metadata]
+         :as   search-state} @state/search
         {:keys [offset items]} @state/query
         {:keys [query-params]} @state/location
-        tr (i18n/->tr)]
+        index-type (some->> (get-in @state/location [:path-params :kind])
+                            (keyword "entity.type"))
+        tr         (i18n/->tr)]
     [:article.search-page
      ;; React key needed for input to update after name->id has been fetched!
      ^{:key [name->id tr]} [search-form tr]
-     (if results
+     (cond
+       index-type
+       (when metadata
+         (let [groups (index-groups metadata index-type)]
+           [:<>
+            [:div.text-content.menu
+             [index-links tr index-type]
+             [:hr]
+             [skip-links groups]]
+            ^{:key groups} [fshared/kvs-list groups index-content]]))
+
+       results
        (if (empty? results)
          [:div.text-content
           [:p (tr ::empty)]
@@ -648,8 +718,9 @@
                    entity-table (partial search-result-table tr search-state)]
                [fshared/kvs-list kvs entity-table offset]))
            [search-paging tr results]]])
-       (when (empty? query-params)
-         [:<>
-          [:div.text-content.menu
-           [index/index-links tr]]
-          [explanation tr name->id]]))]))
+
+       (empty? query-params)
+       [:<>
+        [:div.text-content.menu
+         [index-links tr]]
+        [explanation tr name->id]])]))

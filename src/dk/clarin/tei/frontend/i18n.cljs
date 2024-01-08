@@ -4,9 +4,7 @@
             [dk.clarin.tei.frontend.state :as state]
             [dk.clarin.tei.frontend :as-alias frontend]
             [dk.clarin.tei.frontend.shared :as-alias fshared]
-            [dk.clarin.tei.frontend.page.main :as-alias main]
             [dk.clarin.tei.frontend.page.privacy :as-alias privacy]
-            [dk.clarin.tei.frontend.page.bookmarks :as-alias bookmarks]
             [dk.clarin.tei.frontend.page.reader :as-alias reader]
             [dk.clarin.tei.frontend.page.search :as-alias search]))
 
@@ -32,6 +30,8 @@
 (def frontend-translations
   {::frontend/main-caption         {:en "Go to the main page"
                                     :da "Gå til hovedsiden"}
+   ::frontend/back                 {:en "go back"
+                                    :da "gå tilbage"}
    ::frontend/encyclopedia         {:en "Encyclopedia"
                                     :da "Encyklopædi"}
    ::frontend/local-reader         {:en "Local reader"
@@ -50,61 +50,22 @@
                                                              :alt "Dannebrog"}]}
    ::frontend/language-caption     {:en "English (klik for skifte til dansk)"
                                     :da "Dansk (click to switch to English)"}
-   ::frontend/bookmarks            {:en "Bookmarks"
-                                    :da "Bogmærker"}
-   ::frontend/add-bookmark-caption {:en "Add bookmark for this page"
-                                    :da "Opret bogmærke for denne side"}
-   ::frontend/rem-bookmark-caption {:en "Remove bookmark for this page"
-                                    :da "Fjern bogmærke for denne side"}
    ::frontend/a11y                 {:da "Tilgængelighed"
                                     :en "Accessibility"}
    ::frontend/privacy              {:da "Privatliv"
                                     :en "Privacy"}
    ::frontend/copyright            {:da [:<>
-                                         [:span "© 2022 - "]
+                                         [:span "© 2024 - "]
                                          [:a {:href "https://www.ku.dk/"}
-                                          [:span.first "K"]
-                                          "øbenhavns Universitet"]
-                                         [:span " & "]
-                                         [:a {:href "https://www.au.dk/"}
-                                          [:span.first "A"]
-                                          "arhus Universitet"]
+                                          "Københavns Universitet"]
                                          "."]
                                     :en [:<>
-                                         [:span "© 2022 - "]
+                                         [:span "© 2024 - "]
                                          [:a {:href "https://www.ku.dk/english/"}
-                                          [:span.first "U"]
-                                          "niversity of Copenhagen"]
-                                         [:span " & "]
-                                         [:a {:href "https://international.au.dk/"}
-                                          [:span.first "A"]
-                                          "arhus University"]
+                                          "University of Copenhagen"]
                                          "."]}
    ::frontend/unknown-page         {:en [:p "Unknown page."]
                                     :da [:p "Ukendt side."]}})
-
-;; TODO: keep this around while salvaging content from here
-(def main-page-translations
-  {::main/logged-in-status   {:en [:p "You are currently " [:em "logged in"] " via your institution"
-                                   " (" [:a {:href "/tei/bookmarks"} "bookmarks"] ")."]
-                              :da [:p "Du er i øjeblikket " [:em "logget ind"] " via din institution"
-                                   " (" [:a {:href "/tei/bookmarks"} "bogmærker"] ")."]}
-   ::main/logged-in-status-1 {:en [:p "You are currently " [:em "logged in"] " via " [:arg 0]
-                                   " (" [:a {:href "/tei/bookmarks"} "bookmarks"] ")."]
-                              :da [:p "Du er i øjeblikket " [:em "logget ind"] " via " [:arg 0]
-                                   " (" [:a {:href "/tei/bookmarks"} "bogmærker"] ")."]}
-   ::main/log-out            {:en "Log out"
-                              :da "Log ud"}
-   ::main/log-out-long       {:en "Log out of CLARIN TEI"
-                              :da "Log ud af CLARIN TEI"}
-   ::main/user-details       {:en "User details"
-                              :da "Brugerdetaljer"}
-   ::main/logged-out-status  {:en [:p "You are currently " [:em "not"] " logged in. "]
-                              :da [:p "Du er i øjeblikket " [:em "ikke"] " logget ind. "]}
-   ::main/log-in             {:en "Log in"
-                              :da "Log ind"}
-   ::main/log-in-long        {:en "Log in to CLARIN TEI using your institution"
-                              :da "Log ind i CLARIN TEI vha. din institution"}})
 
 (def privacy-page-translations
   {::privacy/text {:da [:<>
@@ -113,30 +74,14 @@
                         Dog skal du forvente at dit besøg på siden logges, og at der lagres cookies
                         og andet data i det omfang du bruger siden."]
                         [:p
-                         "Eksempelvis lagres dine sprogindstillinger lokalt i din browser,
-                        hvis du ændrer sproget og din sessions-ID gemmes også som en cookie både i
-                        din browser og på serveren, således at login-funktionaliteten fungerer.
-                        Funktionalitet på siden som kræver at andet data gemmes, f.eks. bogmærker,
-                        resulterer også i at data lagres på vores server."]
-                        [:p
-                         "Login håndteres helt transparent via din egen institutions login-side.
-                        Når du logger ind, modtager vi en lille portion data, der identificerer dig.
-                        De datapunkter vi modtager, kan du se under BRUGERDETALJER på forsiden."]]
+                         "Eksempelvis lagres dine sprogindstillinger lokalt i din browser, hvis du ændrer sproget."]]
                    :en [:<>
                         [:p
                          "Clarin.dk does not collect data about its users for statistics or other purposes.
                          However, you should expect that your visit to this page is logged and that cookies
                          and other data will be stored according to your site usage."]
                         [:p
-                         "For example, your language settings are stored locally in your browser
-                         if you change the language and your session ID is also stored as a cookie in both
-                         your browser and on the server, such that logins are possible.
-                         Any functionality on this site which requires saving other data, e.g. bookmarks,
-                         also results in data being persisted on our server."]
-                        [:p
-                         "Login is handled completely transparently via the login page of your institution.
-                         When you log in, we will receive a tiny bit of data identifying you.
-                         You can inspect this data under USER DETAILS on the frontpage."]]}})
+                         "For example, your language settings are stored locally in your browser if you change the language."]]}})
 
 (def reader-page-translations
   {::reader/local-file        {:en "Local TEI file"
@@ -242,22 +187,6 @@
                                "Et eksempel på en entitet, der kan bruges som kriterie, kunne være \""
                                [:arg 1] "\". "]}})
 
-(def bookmarks-page-translations
-  {::bookmarks/other        {:en "Other"
-                             :da "Andet"}
-   ::bookmarks/encyclopedia {:en "Encyclopedia"
-                             :da "Encyklopædi"}
-   ::bookmarks/searches     {:en "Searches"
-                             :da "Søgninger"}
-   ::bookmarks/documents    {:en "Documents"
-                             :da "Dokumenter"}
-   ::bookmarks/go-caption   {:en "Go to this page"
-                             :da "Gå til denne side"}
-   ::bookmarks/empty        {:en (str "You do not seem to have bookmarked any pages. "
-                                      "Click on the star in the top-right corner to bookmark a page.")
-                             :da (str "Det ser ikke ud til, at du har tilføjet nogen bogmærker. "
-                                      "Klik på stjernen i det øverste højre hjørne for at tilføje den nuværende side som bogmærke.")}})
-
 (def other-translations
   {:entity.type/person         {:en "Person"
                                 :da "Person"}
@@ -326,7 +255,6 @@
                                privacy-page-translations
                                reader-page-translations
                                search-page-translations
-                               bookmarks-page-translations
                                other-translations)))
 
 (def tr

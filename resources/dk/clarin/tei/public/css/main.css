@@ -1,17 +1,3 @@
-@keyframes shake {
-  0% { transform: translate(1px, 1px) rotate(0deg); }
-  10% { transform: translate(-1px, -2px) rotate(-1deg); }
-  20% { transform: translate(-2px, 0px) rotate(1deg); }
-  30% { transform: translate(2px, 1px) rotate(0deg); }
-  40% { transform: translate(1px, -1px) rotate(1deg); }
-  50% { transform: translate(-1px, 2px) rotate(-1deg); }
-  60% { transform: translate(-2px, 0) rotate(0deg); }
-  70% { transform: translate(2px, 1px) rotate(-1deg); }
-  80% { transform: translate(-1px, -1px) rotate(1deg); }
-  90% { transform: translate(1px, 2px) rotate(0deg); }
-  100% { transform: translate(0px, -1px) rotate(-1deg); }
-}
-
 /* Keyframes */
 @keyframes wiggle {
   0%, 7% {
@@ -37,17 +23,6 @@
   }
 }
 
-@keyframes fade-in-x {
-  from {
-    opacity: 1;
-    transform: scaleX(0.33);
-  }
-  to {
-    opacity: 1;
-    transform: scaleX(1);
-  }
-}
-
 @keyframes fade-in-y {
   from {
     opacity: 1;
@@ -70,17 +45,6 @@
   }
 }
 
-@keyframes pop-up {
-  from {
-    opacity: 0;
-    transform: translateY(100vh);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
 @keyframes fade-in-result {
   from {
     opacity: 0.33;
@@ -91,30 +55,8 @@
   }
 }
 
-@keyframes glow {
-  from {
-    text-shadow:
-    0 0 1px #ff4da6;
-  }
-  to {
-    text-shadow:
-    0 0 4px  #ff4da6,
-    0 0 8px  #ff4da6,
-    0 0 12px #ff4da6,
-    0 0 16px #ff4da6,
-    0 0 20px #ff4da6,
-    0 0 24px #ff4da6,
-    0 0 28px #ff4da6;
-  }
-}
-
-@font-face {
-    font-family: PoiretOne;
-    src: url(/fonts/PoiretOne-aD0x.ttf);
-}
-
 * {
-    font-family: Georgia, serif;
+    font-family: 'Computer Modern Concrete', serif;
 }
 
 ::placeholder {
@@ -123,11 +65,7 @@
 
 body {
     margin: 0;
-    background: var(--background-darker);
-}
-
-abbr {
-    cursor: help;
+    background: #EFEFEF;
 }
 
 a {
@@ -146,20 +84,9 @@ a[disabled] {
 }
 
 header {
-    background-image: linear-gradient(180deg, #000 66%, #222 100%);
-    box-shadow: var(--box-shadow-elevated);
-
     display: flex;
     align-items: flex-end;
-
-    padding: var(--padding-l) var(--padding) var(--padding-s) var(--padding);
-}
-
-/* Reset for special header links. */
-header a:hover,
-footer a:hover {
-    text-decoration: none;
-    animation: glow 0.5s ease-in-out infinite alternate;
+    padding: 0;
 }
 
 header * {
@@ -167,14 +94,16 @@ header * {
 }
 
 header > nav {
-    width: fit-content;
-    flex-grow: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+
 }
 
 header > h1,
 header > h1 > a,
 header > nav > a {
-    color: #EFEFEF;
+    color: #333;
 }
 
 header > nav > a {
@@ -185,33 +114,41 @@ header > h1,
 header > h1 > a,
 header > nav > a {
     letter-spacing: 4px;
-    font-family: PoiretOne, sans-serif;
+    font-family: 'Computer Modern Concrete', sans-serif;
     text-transform: uppercase;
     margin: 0;
 }
 
 header > h1 {
-    margin-top: var(--margin);
-}
-
-/*  Circumventing a dumb Firefox bug in ::first-letter causing layout shifts. */
-.first {
-    font-family: PoiretOne, sans-serif;
-    text-transform: uppercase;
-    color: #ffc92e;
-    font-size: 200%;
+    flex-grow: 1;
 }
 
 header > h1 {
-    font-size: 60px;
+    font-size: 48px;
     display: inline;
 }
 
-header > nav > a + a {
-     margin-left: var(--margin-l);
+button.back {
+    transition: all 0.2s;
+    margin-top: 12px;
+    margin-bottom: -12px;
+    background: url(/images/backward-svgrepo-com.svg);
+    background-size: 12px;
+    background-repeat: no-repeat;
+    background-position: 2px center;
+    cursor: pointer;
+    padding-left: 20px;
+    border: none;
+    color: #1060d7;
+    font-size: 16px;
 }
 
-footer button.language {
+button.back:hover {
+    text-decoration: underline;
+    transform: scale(1.2);
+}
+
+button.language {
     padding: 0;
     background: none;
     border: none;
@@ -220,42 +157,9 @@ footer button.language {
     font-size: 24px;
 }
 
-footer button.language:hover {
+button.language:hover {
     animation: wiggle 2s ease-in;
     opacity: 1;
-}
-
-header > nav > input[type=checkbox].bookmark {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-
-    transition: all 0.2s;
-    opacity: 0.33;
-    margin-left: var(--margin-l);
-    vertical-align: bottom;
-    width: 24px;
-    height: 32px;
-    background: url(/images/star-empty.svg) no-repeat center;
-    background-size: contain;
-}
-
-header > nav > input[type=checkbox].bookmark:not(:disabled):hover {
-    opacity: 1;
-    animation: wiggle 2s ease-in;
-    cursor: pointer;
-}
-
-header > nav > input[type=checkbox].bookmark:checked {
-     background: url(/images/star-filled.svg) no-repeat center;
-     background-size: contain;
-     opacity: 1;
-}
-
-.toggle-compact {
-    flex-grow: 1;
-    align-self: stretch;
-    justify-self: stretch;
 }
 
 /*  The extra shell div is needed for the timeline to work.
@@ -264,6 +168,7 @@ header > nav > input[type=checkbox].bookmark:checked {
 #shell {
     display: flex;
     flex-direction: column;
+    align-items: center;
     min-height: 100vh;
 }
 
@@ -274,14 +179,6 @@ main {
 img.language-icon {
     height: 20px;
     width: 20px;
-}
-
-/* Workaround for timeline weirdness. */
-#shell.timeline {
-    display: inherit;
-}
-main > .timeline-container {
-    height: calc(100vh - 28px); /* Account for header */
 }
 
 #shell.fetching {
@@ -318,228 +215,55 @@ img.loading-indicator {
     transition-delay: 1s;
 }
 
-/* The responsive breakpoints below mostly mirror the #shell.compact styles. */
-@media only screen and (max-width: 992px) {
-    #shell .toggle-compact {
-        pointer-events: none;
-    }
+header, main, footer {
+    margin-top: var(--margin-xl);
 }
 
-#shell.compact header {
-    padding: 0 var(--padding-s);
-}
-@media only screen and (max-width: 992px) {
-    #shell header {
-        padding: 0 var(--padding-s);
-    }
-}
-
-#shell.compact header > h1,
-#shell.compact header > nav {
-    margin: var(--padding-s) 0;
-}
-@media only screen and (max-width: 992px) {
-    #shell header > h1,
-    #shell header > nav {
-        margin: var(--padding-s) 0;
-    }
-}
-
-#shell.compact > header * {
-  font-size: 14px;
-}
-@media only screen and (max-width: 992px) {
-    #shell > header * {
-      font-size: 14px;
-    }
-}
-
-
-#shell.compact > header > nav > a + a {
-    margin-left: var(--margin);
-}
-@media only screen and (max-width: 992px) {
-    #shell > header > nav > a + a {
-        margin-left: var(--margin);
-    }
-}
-
-
-#shell.compact button.language {
-    margin-left: var(--margin-s);
-    height: 16px;
-    width: 16px;
-}
-@media only screen and (max-width: 992px) {
-    #shell button.language {
-        margin-left: var(--margin-s);
-        height: 16px;
-        width: 16px;
-    }
-}
-
-#shell.compact img.language-icon {
-    height: 13px;
-    width: 13px;
-}
-@media only screen and (max-width: 992px) {
-    #shell img.language-icon {
-        height: 13px;
-        width: 13px;
-    }
-}
-
-#shell.compact input[type=checkbox].bookmark {
-    width: 14px;
-    height: 14px;
-    margin-left: var(--margin-s);
-}
-@media only screen and (max-width: 992px) {
-    #shell input[type=checkbox].bookmark {
-        width: 14px;
-        height: 14px;
-        margin-left: var(--margin-s);
-    }
-}
-
-footer {
-    background-image: linear-gradient(180deg, #000 66%, #222 100%);
-    box-shadow: var(--box-shadow-elevated-reverse);
-
-    align-self: stretch;
+#shell > footer {
     text-align: center;
     margin-top: auto;
-    padding: var(--padding-l) var(--padding-m);
+    padding: var(--margin-xl) var(--padding);
 }
 
-main > article
+main > article,
+header
 {
     width: clamp(
         20ch,
         calc(100vw - var(--margin-l) - var(--margin-l)),
         90ch
     );
-    margin: var(--margin-xl) var(--margin-l);
 }
 
 article.tabs {
     width: inherit;
 }
 
-article.reader-page {
-    width: clamp(
-            40ch,
-            calc(100vw - var(--padding-xl) * 2),
-            180ch
-        );
+main > article.reader-page {
+    width: 180ch;
+    max-width: calc(100vw - 64px);
 }
 
 article.reader-preview-page input[type=file] {
     margin-bottom: 10px;
 }
 
-footer * {
-    color: white;
-    font-family: PoiretOne, sans-serif;
-}
-
-footer .links {
-    display: flex;
-    justify-content: center;
-    align-items: baseline;
-    font-size: 16px;
-}
-
-footer .links:first-child {
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    margin-bottom: var(--margin);
-}
-
-footer .links:last-child {
-    letter-spacing: 2px;
-    font-size: 14px;
-}
-
-footer .links > * + * {
-    margin-left: 0.5ch;
-}
-
-.shell .search-result .kvs-list {
+#shell .search-result .kvs-list {
     transition: all 0.66s;
 }
 
-.text-content {
-    animation: fade-in-result 0.33s ease-out;
-    padding: var(--padding-xl);
-    border: var(--border-some);
-    background: var(--background);
-    box-shadow: var(--box-shadow-container);
-    border-radius: var(--border-radius);
-    font-family: Georgia, serif;
-    font-size: 16px;
-    color: var(--color);
-    line-height: 1.6;
-    letter-spacing: 1.25;
-}
-
-.text-content.menu {
-    padding: var(--padding-l);
-    background: rgba(0,0,0,0.1);
-    border: var(--border-subtle);
-    box-shadow: none;
-}
-
-.text-content + .text-content {
-    margin-top: var(--margin-xl);
-}
-
-.text-content > section {
-    clear: both;
-    padding: var(--padding-xl) 0;
-}
-
-.text-content > section:first-child {
-    padding-top: 0;
-}
-
-.text-content > section:last-child {
-    padding-bottom: 0;
-}
-
-.text-content p {
-    margin: 0;
-}
-
-.text-content:not(.menu) p + * {
-    margin-top: var(--margin-xl);
-}
-
-.text-content ul,
 .index-page ul {
     margin: var(--margin-xl) 0 var(--margin-xl) var(--margin-l);
 }
 
-.text-content ul ul {
-   margin: var(--margin-s) 0 var(--margin-s) var(--margin);
-}
-
-.text-content ul > li + li,
 .index-page ul > li + li {
     margin-top: var(--margin);
-}
-
-.text-content aside {
-    width: fit-content;
-    background: rgba(255,255,255,0.33);
-    margin: var(--margin-xl) auto;
-    border: var(--border-subtle);
 }
 
 .search-form {
     display: flex;
     flex-direction: column;
-    font-family: Georgia, serif;
+    font-family: 'Computer Modern Concrete', serif;
     letter-spacing: 1.25;
     font-size: 16px;
     margin: var(--margin) 0 var(--margin-xl) 0;
@@ -583,8 +307,7 @@ label {
     margin-right: 0;
 }
 
-.search-form__item > button,
-ul.bookmarks > li button {
+.search-form__item > button {
     all: unset; /* https://stackoverflow.com/questions/2460100/remove-the-complete-styling-of-an-html-button-submit */
     cursor: pointer;
     outline: revert;
@@ -599,8 +322,7 @@ ul.bookmarks > li button {
     vertical-align: text-bottom;
 }
 
-.search-form__item > button:hover,
-ul.bookmarks > li button:hover {
+.search-form__item > button:hover {
     transform: rotate(90deg);
     background-size: 20px;
 }
@@ -636,10 +358,6 @@ button.search-form__add:hover {
 
 button.search-form__add:disabled {
     opacity: 0;
-}
-
-ul.bookmarks > li button {
-    margin-right: 4px;
 }
 
 img.entity-icon {
@@ -816,21 +534,12 @@ details[open] summary {
     padding: 8px 24px 24px 24px;
 }
 
-.input-row input.not-allowed {
-    animation: shake 0.2s;
-}
-
 .input-row input.bad-input {
     box-shadow: 0 0 8px 4px #d64646;
 }
 
 .input-row input.good-input {
     box-shadow: 0 0 8px 4px #70e400;
-}
-
-/* yellow -- when e.g. input is technically valid, but already applied. */
-.input-row input.good-input.not-allowed {
-    box-shadow: 0 0 8px 4px #EE9c00;
 }
 
 .search-form fieldset legend {
@@ -892,10 +601,6 @@ details[open] summary {
 .search-result__paging select {
     min-width: 120px;
     text-align: center;
-}
-
-.reader-page .search-result__paging select {
-    width: fit-content;
 }
 
 .search-result__paging button[disabled] {
@@ -979,32 +684,10 @@ table.entity-metadata ul li + li {
 .index-page h1 {
     text-align: center;
     font-weight: normal;
-    font-family: PoiretOne, sans-serif;
+    font-family: 'Computer Modern Concrete', serif;
     text-transform: uppercase;
     letter-spacing: 4px;
     margin-bottom: var(--margin-xl);
-}
-
-.text-content h2 {
-    text-align: center;
-    font-size: 28px;
-    font-weight: normal;
-    text-transform: uppercase;
-    border-bottom: var(--border-very-subtle);
-    letter-spacing: 6px;
-    padding: 0 0 var(--padding) 0;
-    margin: 0 0 var(--margin-xl) 0;
-
-}
-
-.text-content h2::before {
-    content: "⊱ ";
-    color: #ff663c;
-}
-
-.text-content h2::after {
-    content: " ⊰";
-    color: #ff663c;
 }
 
 .index-page dl,
@@ -1028,13 +711,18 @@ table.entity-metadata ul li + li {
 .index-links {
     text-align: center;
     margin: 0;
-    font-size: 22px;
-    font-family: PoiretOne, sans-serif;
+    font-size: 20px;
+    font-variant: small-caps;
+    font-family: 'Computer Modern Concrete', serif;
+}
+
+.index-links * + * {
+    margin-left: var(--margin-xl);
 }
 
 .index-links a, .index-links span {
     white-space: nowrap;
-    font-family: PoiretOne, sans-serif;
+    font-family: 'Computer Modern Concrete', serif;
 }
 
 hr {
@@ -1102,7 +790,7 @@ dl.kvs-list dd {
     border-top: none;
     border-bottom: none;
     background: var(--background);
-    font-family: Georgia, serif;
+    font-family: 'Computer Modern Concrete', serif;
     font-size: 16px;
     color: var(--color);
     line-height: 1.6;

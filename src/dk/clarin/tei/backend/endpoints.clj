@@ -2,19 +2,15 @@
   "The various handlers/interceptors provided by the backend web service."
   (:require [clojure.string :as str]
             [io.pedestal.http.route :refer [path-params-decoder]]
-            [io.pedestal.http.body-params :refer [body-params]]
             [io.pedestal.http.content-negotiation :as conneg]
             [io.pedestal.log :as log]
             [ring.util.response :as ring]
             [com.wsscode.transito :as transito]
             [asami.core :as d]
-            [tick.core :as t]
-            [dk.clarin.tei.db :as db :refer [conn pconn]] ; TODO: attach this in an interceptor instead, reducing decoupling?
+            [dk.clarin.tei.db :refer [conn]]         ; TODO: attach this in an interceptor instead, reducing decoupling?
             [dk.clarin.tei.db.search :as db.search]
             [dk.clarin.tei.shared :refer [parse-date utc-dtf]]
-            [dk.cst.pedestal.sp.auth :as sp.auth]
-            [dk.clarin.tei.shared :as shared])
-  (:import [java.util UUID]))
+            [dk.cst.pedestal.sp.auth :as sp.auth]))
 
 (def one-month-cache
   "private, max-age=2592000")
@@ -83,98 +79,6 @@
                   "Cache-Control" one-day-cache))
       {:status 404})))
 
-(defn add-bookmark-handler
-  "A handler to add a bookmark to the persisted storage graph."
-  [{:keys [path-params transit-params conf] :as request}]
-  (let [{:keys [bookmark/path
-                bookmark/page
-                bookmark/title
-                bookmark/visibility]} transit-params
-        {:keys [author]} path-params
-        {:keys [db-dir]} conf
-        assertions (sp.auth/request->assertions request)
-        user       (shared/assertions->user-id assertions)
-        db         (pconn db-dir)
-        id         (UUID/nameUUIDFromBytes (.getBytes (str user " " path)))
-        timestamp  (t/now)
-        existing   (d/entity db id)]
-    (cond
-      (not= user author)
-      {:status 403}
-
-      (not (and path page title visibility))                ; i.e. 500 status
-      (throw (ex-info "missing args in request" transit-params))
-
-      :else
-      (do
-        (when (not= visibility (:bookmark/visibility existing))
-          (let [tx-data [(if existing
-                           {:db/ident             id
-                            :entity/edited'       timestamp
-                            :bookmark/visibility' visibility}
-                           {:db/ident            id
-                            :entity/type         :entity.type/bookmark
-                            :entity/edited       timestamp
-                            :entity/created      timestamp
-                            :bookmark/path       path
-                            :bookmark/title      title
-                            :bookmark/page       page
-                            :bookmark/author     user
-                            :bookmark/visibility visibility})]]
-            @(d/transact db {:tx-data tx-data})))
-        {:status  (if existing 200 201)
-         :body    (let [{:keys [bookmark/path] :as entity} (d/entity db id)]
-                    (transito/write-str [path (-> (clean-entity entity)
-                                                  (dissoc :bookmark/path)
-                                                  (assoc :db/ident id))]))
-         :headers {"Content-Type" "application/transit+json"
-                   "Location"     (str "/bookmark/" id)}}))))
-
-(defn single-bookmark-handler
-  "A handler to get or delete a bookmark from the persisted storage graph."
-  [{:keys [request-method path-params conf] :as request}]
-  (let [{:keys [id author]} path-params
-        {:keys [db-dir]} conf
-        assertions (sp.auth/request->assertions request)
-        user       (shared/assertions->user-id assertions)
-        db         (pconn db-dir)
-        id         (UUID/fromString id)
-        bookmark   (d/entity db id)]
-    (cond
-      (not bookmark)
-      {:status 404}
-
-      (not= user author (:bookmark/author bookmark))
-      {:status 403}
-
-      (= request-method :get)
-      {:status  200
-       :body    (transito/write-str bookmark)
-       :headers {"Content-Type" "application/transit+json"}}
-
-      (= request-method :delete)
-      (do
-        (db/retract-entity! db id)
-        {:status 204}))))
-
-(defn bookmarks-handler
-  "A handler to get all bookmarks from the persisted storage graph."
-  [{:keys [path-params conf] :as request}]
-  (let [{:keys [author]} path-params
-        {:keys [db-dir]} conf
-        assertions (sp.auth/request->assertions request)
-        db         (pconn db-dir)
-        bookmarks  (->> (db/bookmarks db assertions author)
-                        (map (fn [id]
-                               (let [{:keys [bookmark/path]
-                                      :as   entity} (d/entity db id)]
-                                 [path (-> (dissoc entity :bookmark/path)
-                                           (assoc :db/ident id))])))
-                        (into {}))]
-    {:status  200
-     :body    (transito/write-str (or bookmarks {}))
-     :headers {"Content-Type" "application/transit+json"}}))
-
 (defn- pipe-split
   "Split pipe-separated string `s`; otherwise return `s`."
   [s]
@@ -242,8 +146,8 @@
                 _]
          :as   params} (update-vals query-params (comp ?keywordize pipe-split))
         wildcard _                                          ; _ is used for noop
-        #_#__        (when-not (whitelisted (:entity/type params))
-                       (sp.auth/enforce-condition request :authenticated))
+        #_#__ (when-not (whitelisted (:entity/type params))
+                (sp.auth/enforce-condition request :authenticated))
         entity   (-> (handle-file-extension params)
                      (dissoc :_ :limit :offset :order-by :from :to)
                      (cond-> wildcard (assoc '_ wildcard)))
@@ -293,19 +197,6 @@
 (def entity-chain
   [path-params-decoder
    entity-handler])
-
-(def bookmarks-chain
-  [path-params-decoder
-   bookmarks-handler])
-
-(def add-bookmark-chain
-  [path-params-decoder
-   (body-params)
-   add-bookmark-handler])
-
-(def single-bookmark-chain
-  [path-params-decoder
-   single-bookmark-handler])
 
 (def search-chain
   [path-params-decoder

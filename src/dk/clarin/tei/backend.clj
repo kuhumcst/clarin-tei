@@ -52,18 +52,6 @@
       ["/entity/:id"
        :get (into all endpoints/entity-chain)
        :route-name ::endpoints/entity]
-      #_["/user/:author/bookmarks"
-         :get (into authenticated endpoints/bookmarks-chain)
-         :route-name ::endpoints/bookmarks]
-      #_["/user/:author/bookmarks"
-         :post (into authenticated endpoints/add-bookmark-chain)
-         :route-name ::endpoints/add-bookmark]
-      #_["/user/:author/bookmarks/:id"
-         :get (into authenticated endpoints/single-bookmark-chain)
-         :route-name ::endpoints/get-bookmark]
-      #_["/user/:author/bookmarks/:id"
-         :delete (into authenticated endpoints/single-bookmark-chain)
-         :route-name ::endpoints/delete-bookmark]
 
       ;; Unrestricted at the route level, but performs local authorization.
       ;; Refer to the source code of the 'search-handler' for details.
@@ -91,9 +79,12 @@
     (log/error :bootstrap.conf/invalid conf-error)
     (throw (ex-info "invalid configuration" conf-error)))
   (let [csp (if bshared/development?
-              {:default-src "'self' 'unsafe-inline' 'unsafe-eval' localhost:* 0.0.0.0:* ws://localhost:* ws://0.0.0.0:*"}
+              {:default-src "'self' 'unsafe-inline' 'unsafe-eval' localhost:* 0.0.0.0:* ws://localhost:* ws://0.0.0.0:*"
+               :font-src    "'self'"
+               :style-src   "'self' 'unsafe-inline'"}
               {:default-src "'self'"
                :base-uri    "'self'"
+               :font-src    "'self'"
                :script-src  "'self' 'unsafe-inline'"        ; TODO: unsafe-eval possibly only needed for dev main.js?
                :style-src   "'self' 'unsafe-inline'"})]
     (cond-> {::http/routes         #((deref #'routes) sp-conf)

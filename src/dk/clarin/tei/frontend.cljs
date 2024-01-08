@@ -7,17 +7,11 @@
             [reitit.frontend.easy :as rfe :refer [href]]
             [time-literals.read-write :as tl]
             [dk.cst.stucco.util.css :as css]
-            #_[dk.cst.pedestal.sp.auth :as sp.auth]
-            [dk.clarin.tei.shared :as shared]
             [dk.clarin.tei.frontend.i18n :as i18n]
             [dk.clarin.tei.frontend.shared :as fshared]
             [dk.clarin.tei.frontend.state :as state :refer [db]]
-            [dk.clarin.tei.frontend.api :as api]
-            [dk.clarin.tei.frontend.page.main :as-alias main]
             [dk.clarin.tei.frontend.page.privacy :as privacy]
             [dk.clarin.tei.frontend.page.search :as search]
-            [dk.clarin.tei.frontend.page.bookmarks :as bookmarks]
-            [dk.clarin.tei.frontend.page.index :as index]
             [dk.clarin.tei.frontend.page.reader :as reader]))
 
 (def routes
@@ -34,17 +28,13 @@
                    (do
                      (search/?query-reset!)
                      (fshared/set-title! (search/page-title)))))}]
-   #_["/tei/bookmarks"
-      {:name  ::bookmarks/page
-       :title ::bookmarks
-       :page  bookmarks/page}]
-   ["/tei/index/:kind"
-    {:name  ::index/page
+   ["/tei/search/:kind"
+    {:name  ::search/index-page
      :title (fn [m]
               (->> (get-in m [:path-params :kind])
                    (keyword "entity.type")
                    ((i18n/->tr))))
-     :page  index/page}]
+     :page  search/page}]
    ["/tei/reader"
     {:name  ::reader/preview
      :title ::local-reader
@@ -68,30 +58,26 @@
    :raw?    true                                            ; use raw strings
    :secure? true})
 
-(defn mark-first
-  "Mark the first character of a string `s` with the class first.
-
-  This annoying workaround is needed because of 15+ year old bug in Firefox:
-  https://bugzilla.mozilla.org/show_bug.cgi?id=385615"
-  [s]
-  (let [c (subs s 0 1)
-        s (subs s 1)]
-    [:<> [:span.first c] s]))
-
 (defn shell
   "A container component that wraps the various pages of the app."
   []
-  (let [{:keys [page name]} (:data @state/location)
-        #_#_path           (fshared/current-path)
-        #_#_authenticated? @state/authenticated?
-        #_#_user           (shared/assertions->user-id state/assertions)
-        #_#_{:keys [db/ident] :as bookmark} (get @state/bookmarks path)
-        fetching?      (not-empty @state/fetches)
-        tr             (i18n/->tr)]
+  (let [loc       @state/location
+        {:keys [page name]} (:data loc)
+        fetching? (not-empty @state/fetches)
+        tr        (i18n/->tr)]
     ;; A containing div is currently needed for the timeline to work properly.
     [:div#shell {:class [(when fetching?
                            "fetching")]}
-     #_[:header
+     (if (= name ::reader/page)
+       ;; Special header used on the reader page to save vertical space.
+       ;; It either simulates the back button or goes to a blank search page.
+       [:button.back {:on-click #(if (-> loc :prev)
+                                   (js/history.back)
+                                   (rfe/navigate ::search/page))}
+        (tr ::back)]
+
+       ;; The primary header that is used on every other page but the reader.
+       [:header
         [:h1
          [:a {:href  (href ::search/page)
               :title (tr ::main-caption)}
@@ -105,76 +91,45 @@
                                               (fshared/set-title!))))}
           (tr ::language-flag)]]
         [:nav
-         #_[:input.bookmark {:type      "checkbox"
-                             :disabled  (not authenticated?)
-                             :checked   (boolean bookmark)
-                             :title     (if bookmark
-                                          (tr ::rem-bookmark-caption)
-                                          (tr ::add-bookmark-caption))
-                             :on-change (fn [e]
-                                          (.preventDefault e)
-                                          (if bookmark
-                                            (api/del-bookmark user path ident)
-                                            (api/add-bookmark user path name)))}]]]
+         [:a {:href "https://github.com/kuhumcst/clarin-tei"}
+          "Github"]
+         [:a {:href "/tei/privacy"}
+          (tr ::privacy)]
+         [:a {:href "https://www.was.digst.dk/clarin-dk"}
+          (tr ::a11y)]]])
+
+     ;; The actual, page-specific content.
      [:main
       [:img.loading-indicator {:alt ""                      ; signal decorative
                                :src "/images/loading.svg"}]
       (if page
         [page]
         [tr ::unknown-page])]
+
      [:footer
-      [:section.links
-       [:button.language {:title    (tr ::language-caption)
-                          :on-click (fn [_]
-                                      (let [v (swap! state/language lang "da")]
-                                        (cookie/set! :language v cookie-opts)
-                                        (-> @state/location
-                                            (fshared/location->page-title)
-                                            (fshared/set-title!))))}
-        (tr ::language-flag)]
-       [:span " / "]
-       [:a {:href "https://www.was.digst.dk/clarin-dk"}
-        (mark-first (tr ::a11y))]
-       [:span " / "]
-       [:a {:href "/tei/privacy"}
-        (mark-first (tr ::privacy))]
-       [:span " / "]
-       [:a {:href "https://github.com/kuhumcst/clarin-tei"}
-        (mark-first "Github")]]
-      [:section.links
-       [tr ::copyright]]]]))
-
-
-(defn fetch-bookmarks!
-  "Fetches and post-processes metadata used to populate the search form."
-  [user]
-  (.then (api/fetch (str "/user/" user "/bookmarks"))
-         (fn [bookmarks]
-           (reset! state/bookmarks bookmarks))))
+      [tr ::copyright]]]))
 
 (defn universal-prep!
   "Prepare widely needed state."
   []
-  (let [{:keys [name->id]} @state/search
-        bookmarks @state/bookmarks]
-    #_(when (and (not bookmarks) state/assertions)
-        (when-let [user (shared/assertions->user-id state/assertions)]
-          (fetch-bookmarks! user)))
+  (let [{:keys [name->id]} @state/search]
     (when-not name->id
       (search/fetch-metadata!))))
 
 (defn on-navigate
   [{:keys [path query-params] :as m}]
-  (let [old-location @state/location]
+  (let [prev-loc @state/location]
     ;; Avoid re-fetching/resetting on soft reloads, e.g. by shadow-cljs.
-    (when (or (not= path (:path old-location))
-              (not= query-params (:query-params old-location)))
+    (when (or (not= path (:path prev-loc))
+              (not= query-params (:query-params prev-loc)))
       (set! state/*block-modal-dialogs* false)
       (universal-prep!)
       (when-let [prep (get-in m [:data :prep])]
         (prep m)))
 
-    (reset! state/location m)
+    ;; We retain a link to the previous location to allow for deciding between
+    ;; simulating the back button or going to the main page.
+    (reset! state/location (assoc m :prev prev-loc))
     (fshared/set-title! (fshared/location->page-title m))
 
     ;; Scroll state is always reset when no intra-page navigation is expected.

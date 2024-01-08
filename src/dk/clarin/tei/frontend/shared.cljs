@@ -6,7 +6,6 @@
             [dk.clarin.tei.shared :as shared]
             [dk.clarin.tei.frontend.state :as state]
             [dk.clarin.tei.static-data :as sd]
-            [dk.clarin.tei.frontend.page.index :as-alias index]
             [dk.clarin.tei.frontend.page.search :as-alias search]
             [dk.clarin.tei.frontend.page.reader :as-alias reader]
             [dk.cst.stucco.pattern :as stp]
@@ -74,7 +73,7 @@
 
 (defn index-href
   [entity-type]
-  (rfe/href ::index/page {:kind (name entity-type)}))
+  (rfe/href ::search/index-page {:kind (name entity-type)}))
 
 (defn reader-href
   [document]
