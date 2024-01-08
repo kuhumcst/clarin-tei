@@ -1,5 +1,5 @@
 (ns dk.clarin.tei.db
-  "Functions for populating & querying the Glossematics Asami database."
+  "Functions for populating & querying the CLARIN TEI Asami database."
   (:require [asami.core :as d]
             [dk.clarin.tei.static-data :as sd]
             [io.pedestal.log :as log]

@@ -29,7 +29,7 @@
      :enter (fn [ctx]
               (update ctx :request assoc :conf conf))}))
 
-(defn glossematics-routes
+(defn clarin-tei-routes
   "Most of the routing happens on the frontend inside the SPA. The API routes
    are an exception (as well as the SAML routes required for Pedestal SP)."
   [conf]
@@ -82,7 +82,7 @@
 (defn routes
   [sp-conf]
   (route/expand-routes
-    (set/union (glossematics-routes sp-conf)
+    (set/union (clarin-tei-routes sp-conf)
                (sp.routes/all sp-conf))))
 
 (defn ->service-map

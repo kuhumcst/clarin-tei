@@ -4,7 +4,7 @@
             [clojure.edn :as edn]))
 
 (defn resource
-  "Load a Glossematics resource from `path` (avoids resource shadowing)."
+  "Load a resource from `path` (avoids resource shadowing)."
   [path]
   (io/resource (str "dk/clarin/tei/" path)))
 

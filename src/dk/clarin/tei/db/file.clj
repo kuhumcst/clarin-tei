@@ -44,5 +44,5 @@
 (comment
   (file-entities "/Users/rqf595/everyman-corpus")
   (filter (comp #{"xml"} :file/extension) (file-entities "/Users/rqf595/everyman-corpus"))
-  (count (file-entities "/Users/rqf595/Desktop/Glossematics-data"))
+  (count (file-entities "/Users/rqf595/everyman-corpus"))
   #_.)

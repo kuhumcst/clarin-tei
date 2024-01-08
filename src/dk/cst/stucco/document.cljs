@@ -70,7 +70,7 @@
           [:figcaption
            [:h2 (insert-wbr alt)]
 
-           ;; NOTE: this part relies on Glossematics CSS!
+           ;; NOTE: this part relies on CLARIN TEI CSS!
            [:table.entity-metadata {:on-click #(.stopPropagation %)
                                     :style    {:cursor "default"}}
             [:tbody

@@ -133,7 +133,7 @@
                                             (fshared/set-title!))))}
         (tr ::language-flag)]
        [:span " / "]
-       [:a {:href "https://www.was.digst.dk/glossematics-dk"}
+       [:a {:href "https://www.was.digst.dk/clarin-dk"}
         (mark-first (tr ::a11y))]
        [:span " / "]
        [:a {:href "/tei/privacy"}

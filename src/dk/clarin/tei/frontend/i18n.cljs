@@ -95,16 +95,16 @@
                                    " (" [:a {:href "/tei/bookmarks"} "bogmærker"] ")."]}
    ::main/log-out            {:en "Log out"
                               :da "Log ud"}
-   ::main/log-out-long       {:en "Log out of Glossematics"
-                              :da "Log ud af Glossematics"}
+   ::main/log-out-long       {:en "Log out of CLARIN TEI"
+                              :da "Log ud af CLARIN TEI"}
    ::main/user-details       {:en "User details"
                               :da "Brugerdetaljer"}
    ::main/logged-out-status  {:en [:p "You are currently " [:em "not"] " logged in. "]
                               :da [:p "Du er i øjeblikket " [:em "ikke"] " logget ind. "]}
    ::main/log-in             {:en "Log in"
                               :da "Log ind"}
-   ::main/log-in-long        {:en "Log in to Glossematics using your institution"
-                              :da "Log ind i Glossematics vha. din institution"}})
+   ::main/log-in-long        {:en "Log in to CLARIN TEI using your institution"
+                              :da "Log ind i CLARIN TEI vha. din institution"}})
 
 (def privacy-page-translations
   {::privacy/text {:da [:<>
