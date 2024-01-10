@@ -1,6 +1,7 @@
 (ns dk.clarin.tei.frontend
   "The central namespace of the frontend client; defines frontend routing."
   (:require [clojure.string :as str]
+            [dk.clarin.tei.static-data :as sd]
             [reagent.dom :as rdom]
             [reagent.cookies :as cookie]
             [reitit.frontend :as rf]
@@ -31,6 +32,7 @@
    ["/tei/search/:kind"
     {:name  ::search/index-page
      :title (fn [m]
+              (search/?query-reset!)
               (->> (get-in m [:path-params :kind])
                    (keyword "entity.type")
                    ((i18n/->tr))))
@@ -58,10 +60,34 @@
    :raw?    true                                            ; use raw strings
    :secure? true})
 
+(defn index-links
+  [tr & [current-type]]
+  (->> (sort-by (comp tr first) sd/real-entity-types)
+       (map (fn [[entity-type {:keys [img-src]}]]
+              (if (= current-type entity-type)
+                [:span (tr entity-type)]
+                [:a {:href     (fshared/index-href entity-type)
+                     :disabled (= current-type entity-type)}
+                 (tr entity-type)])))
+       (into [:nav.index-links])))
+
+(defn skip-links
+  [groups]
+  (into [:nav.skip-links]
+        (->> groups
+             (map (fn [[letter]]
+                    (let [fragment (str "#" (fshared/legal-id letter))]
+                      [:a {:href     fragment
+                           :on-click #(fshared/find-fragment fragment)}
+                       letter])))
+             (interpose ", ")
+             (vec))))
+
 (defn shell
   "A container component that wraps the various pages of the app."
   []
   (let [loc       @state/location
+        {:keys [metadata]} @state/search
         {:keys [page name]} (:data loc)
         fetching? (not-empty @state/fetches)
         tr        (i18n/->tr)]
@@ -78,30 +104,36 @@
 
        ;; The primary header that is used on every other page but the reader.
        [:header
-        [:h1
-         [:a {:href  (href ::search/page)
-              :title (tr ::main-caption)}
-          "TEI reader"]
-         [:button.language {:title    (tr ::language-caption)
-                            :on-click (fn [_]
-                                        (let [v (swap! state/language lang "da")]
-                                          (cookie/set! :language v cookie-opts)
-                                          (-> @state/location
-                                              (fshared/location->page-title)
-                                              (fshared/set-title!))))}
-          (tr ::language-flag)]]
-        [:nav
-         [:a {:href "https://github.com/kuhumcst/clarin-tei"}
-          "Github"]
-         [:a {:href "/tei/privacy"}
-          (tr ::privacy)]
-         [:a {:href "https://www.was.digst.dk/clarin-dk"}
-          (tr ::a11y)]]])
+        [:section.top
+         [:h1
+          [:a {:href  (href ::search/page)
+               :title (tr ::main-caption)}
+           "CLARIN TEI"]
+          [:button.language {:title    (tr ::language-caption)
+                             :on-click (fn [_]
+                                         (let [v (swap! state/language lang "da")]
+                                           (cookie/set! :language v cookie-opts)
+                                           (-> @state/location
+                                               (fshared/location->page-title)
+                                               (fshared/set-title!))))}
+           (tr ::language-flag)]]
+         [:aside
+          [:nav
+           [:a {:href "https://github.com/kuhumcst/clarin-tei"}
+            "Github"]
+           [:a {:href "/tei/privacy"}
+            (tr ::privacy)]
+           [:a {:href "https://www.was.digst.dk/clarin-dk"}
+            (tr ::a11y)]]]]
+        [:section.middle
+         [index-links tr (fshared/current-index)]]
+        (when metadata
+          (when-let [entity-type (fshared/current-index)]
+            [:section.bottom
+             [skip-links (fshared/index-groups metadata entity-type)]]))])
 
      ;; The actual, page-specific content.
      [:main
-      [:img.loading-indicator {:alt ""                      ; signal decorative
-                               :src "/images/loading.svg"}]
       (if page
         [page]
         [tr ::unknown-page])]

@@ -27,9 +27,14 @@
   (str parent-id "-tabpanel-" n))
 
 (def background-colours
-  ["var(--tab-background-1)"
-   "var(--tab-background-2)"
-   "var(--tab-background-3)"])
+  ["var(--flexoki-purple-400)"
+   "var(--flexoki-blue-400)"
+   "var(--flexoki-cyan-400)"
+   "var(--flexoki-green-400)"
+   "var(--flexoki-yellow-400)"
+   "var(--flexoki-orange-400)"
+   "var(--flexoki-red-400)"
+   "var(--flexoki-magenta-400)"])
 
 (defn add-background
   "Annotate background `n` of `backgrounds` in the metadata of `kv`."

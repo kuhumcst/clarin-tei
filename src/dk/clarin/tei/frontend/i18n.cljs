@@ -100,20 +100,26 @@
 (def search-page-translations
   {::search/look-for     {:en "Look for"
                           :da "Led efter"}
-   ::search/placeholder  {:en "e.g. place, person, organisation, …"
-                          :da "f.eks. sted, person, organisation, …"}
+   ::search/placeholder  {:en "input search criterion"
+                          :da "indtast søgekriterie"}
+   ::search/add-more     {:en "input another criterion..."
+                          :da "indtast endnu et kriterie..."}
    ::search/go           {:en "Search"
                           :da "Søg"}
+   ::search/add          {:en "Add"
+                          :da "Tilføj"}
    ::search/options      {:en "More options"
                           :da "Flere muligheder"}
-   ::search/criteria     {:en "Criteria"
-                          :da "Kriterier"}
+   ::search/criteria     {:en "Search criteria"
+                          :da "Søgekriterier"}
    ::search/reset        {:en "Reset criteria"
                           :da "Nulstil kriterier"}
-   ::search/remove       {:en "Remove criterion"
-                          :da "Fjern kriterie"}
-   ::search/add          {:en "Add another criterion"
-                          :da "Tilføj endnu et kriterie"}
+   ::search/field        {:en "Field"
+                          :da "Felt"}
+   ::search/actions      {:en "Actions"
+                          :da "Handlinger"}
+   ::search/remove       {:en "❌ Remove"
+                          :da "❌ Fjern"}
    ::search/prev         {:en "← previous"
                           :da "← forrige"}
    ::search/next         {:en "next →"
@@ -137,8 +143,7 @@
    ::search/descending   {:en "▼ descending"
                           :da "▼ nedadgående"}
    ::search/explanation  {:en [:<>
-                               [:h2 "Find documents"]
-                               [:p "Use this page to search for relevant documents in our archive."]
+                               [:p "Use this page to find relevant documents in our archive."]
                                [:ul
                                 [:li
                                  "Results are found by matching document metadata to "
@@ -157,8 +162,7 @@
                                  "The search results may also be sorted according to a specific field. "
                                  "They can be further restricted to a certain range too."]]]
                           :da [:<>
-                               [:h2 "Find dokumenter"]
-                               [:p "Brug denne side til at søge efter relevante dokumenter i arkivet."]
+                               [:p "Brug denne side til at finde relevante dokumenter i arkivet."]
                                [:ul
                                 [:li
                                  "Resultater fås ved at matche dokumenters metadata med "
@@ -201,6 +205,8 @@
                                 :da "fil"}
    :file/extension             {:en "file extension"
                                 :da "filendelse"}
+   :file/thumbnail             {:en "thumbnail"
+                                :da "miniature"}
 
    :document/century           {:en "century"
                                 :da "århundrede"}
@@ -231,8 +237,8 @@
    :document/facsimile         {:en "facsimile"
                                 :da "facsimile"}
 
-   :any                        {:en "any role"
-                                :da "enhver rolle"}
+   :any                        {:en "not specified"
+                                :da "ikke specificeret"}
    :exactly                    {:en "text"
                                 :da "tekst"}
 

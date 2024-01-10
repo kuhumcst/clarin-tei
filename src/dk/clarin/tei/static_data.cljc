@@ -44,10 +44,7 @@
   attributes that we want to be able to filter by in searches.
 
   The keys of the :en->da map correspond to the set of allowed values."
-  {:entity.type/unknown
-   {:img-src "/images/question-mark-in-circular-shape-svgrepo-com.svg"}
-
-   :document/condition
+  {:document/condition
    ;; TODO: move translations to i18n ns??
    {:en->da  {"transcribed" "transkriberet"}
     :img-src "/images/paper-sheet-svgrepo-com.svg"}})
@@ -127,8 +124,10 @@
 
 ;; Used for select-keys (NOTE: relies on n<8 keys to keep order)
 (def search-result-rels
-  [:document/date
-   :document/author])
+  [:document/author
+   :document/date
+   :document/century
+   :document/dk5])
 
 (def reader-rels
   [:document/date

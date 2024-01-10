@@ -25,7 +25,8 @@
     [:title (str (when bshared/development? "(dev) ") "Clarin TEI")]
     [:link {:rel "icon" :href (cb "/images/favicon.svg")}]
     [:link {:rel "mask-icon" :href (cb "/images/favicon.svg") :color "#a02c2c"}]
-    [:link {:rel "stylesheet" :href (cb "/fonts/Concrete/cmun-concrete.css")}]
+    [:link {:rel "preconnect" :href "https://rsms.me/"}]
+    [:link {:rel "stylesheet" :href "https://rsms.me/inter/inter.css"}]
     [:link {:rel "stylesheet" :href (cb "/css/main.css")}]
     [:link {:rel "stylesheet" :href (cb "/css/theme.css")}]]
    [:body

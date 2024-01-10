@@ -268,3 +268,34 @@
   (set! js/document.title (str (when state/development?
                                  "(dev) ")
                                title)))
+
+(defn current-index
+  []
+  (some->> (get-in @state/location [:path-params :kind])
+           (keyword "entity.type")))
+
+(defn str->index-group
+  "The canonical index group for a given `s`; used for group-by."
+  [s]
+  (or
+    (when-let [initial-num (re-find #"^\d+" s)]
+      initial-num)
+    (when s
+      (first (str/upper-case (str-sort-val s))))))
+
+(defn- index-groups*
+  [search-metadata entity-type]
+  (let [entities (get search-metadata entity-type)]
+    (->> (if (= entity-type :entity.type/person)
+           (map (fn [[k v]]
+                  (let [k' (surname-first k)]
+                    [(if (str/ends-with? k' ", ") k k') v]))
+                entities)
+           entities)
+         (group-by (comp str->index-group first))
+         (remove (comp nil? first))
+         (sort-by first)
+         (into []))))
+
+(def index-groups
+  (memoize index-groups*))

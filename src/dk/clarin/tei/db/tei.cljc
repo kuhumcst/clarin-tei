@@ -169,8 +169,17 @@
            (apply merge-with set/union {:db/ident ident}))
       (meta triples))))
 
+
+(defn thumbnail
+  [entity]
+  (str "thumb-" (first (sort (:document/facsimile entity))) ".jpg"))
+
+(defn add-thumbnail
+  [entity]
+  (assoc entity :file/thumbnail (thumbnail entity)))
+
 (def file->entity
-  (comp triples->entity ->triples))
+  (comp add-thumbnail triples->entity ->triples))
 
 (comment
   (century "1500")
@@ -182,5 +191,8 @@
   (scrape-document (slurp "/Users/rqf595/everyman-corpus/druk_1666/druk_1666_CTB.xml"))
   (->triples "/Users/rqf595/everyman-corpus/druk_1666/druk_1666_CTB.xml")
   (triples->entity (->triples "example.xml" (slurp example)))
+  (-> (triples->entity (->triples "example.xml" (slurp example)))
+      (add-thumbnail))
+
   (meta (triples->entity (->triples "example.xml" (slurp example))))
   #_.)

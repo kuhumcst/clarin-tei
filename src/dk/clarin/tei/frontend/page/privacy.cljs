@@ -6,6 +6,5 @@
   []
   (let [tr (i18n/->tr)]
     [:article.main-page                                         ;TODO: generic container
-     [:div.text-content
-      [:h2 [tr ::frontend/privacy]]
-      [tr ::text]]]))
+     [:h2 [tr ::frontend/privacy]]
+     [tr ::text]]))

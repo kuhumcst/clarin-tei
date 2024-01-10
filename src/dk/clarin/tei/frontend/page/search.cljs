@@ -64,6 +64,9 @@
       from (assoc :from from)
       to (assoc :to to))))
 
+(def colours
+  (cycle ["red" "green" "blue"]))
+
 (def backgrounds
   (cycle stp/background-colours))
 
@@ -89,17 +92,6 @@
                     (apply dissoc @state/query state/local-query-keys))
           (->> (update query :items add-backgrounds)
                (reset! state/query)))))))
-
-(defn- rename-duplicates*
-  "Helper function for 'rename-duplicates'; uses a set of marked `duplicates` to
-  rename every `kv` in the search-metadata."
-  [duplicates [entity-type local-name->id :as kv]]
-  (let [tr (i18n/->tr)]
-    [entity-type
-     (into {} (for [[full-name id :as original-kv] local-name->id]
-                (if (get duplicates full-name)
-                  [(str full-name " — " (tr entity-type)) id]
-                  original-kv)))]))
 
 (defn- ->name-kvs
   [name->id]
@@ -424,15 +416,6 @@
       [select-opts tr compatible-rels [anything-opt tr]])
     [select-opts tr sd/search-rels [anything-opt tr]]))
 
-(defn search-criteria-add
-  [tr]
-  [:button.search-form__add
-   {:title    (tr ::add)
-    :disabled (= (:focus @state/ui) "v")
-    :on-click (fn [e]
-                (.preventDefault e)
-                (.focus (js/document.getElementById "v")))}])
-
 (defn search-criteria
   [tr id->type items]
   [:fieldset
@@ -447,56 +430,48 @@
                           (new-page!))}
      "x"]]
 
-   (for [[k v :as kv] items
-         :let [{:keys [label style]} (meta kv)
-               entity-type  (or (id->type v)
-                                :entity.type/unknown)
-               ->set-rel    (fn [e]
-                              (let [rel (s->rel (e->v e))
-                                    kv' (assoc kv 0 rel)]
-                                (when (not= kv kv')
-                                  (swap! state/query assoc :offset 0))
-                                (swap! state/query replace-kv kv kv')
-                                (new-page!)))
-               entity-label (tr entity-type)
-               img-src      (-> sd/entity-types entity-type :img-src)]]
-     [:<> {:key kv}
-      [:span.search-form__item {:style (assoc style
-                                         :position "relative")
-                                :title entity-label}
-       (when img-src
-         [:img.entity-icon {:src img-src
-                            :alt entity-label}])
-       [:select.search-form__item-select {:on-change ->set-rel
-                                          :value     (rel->s k)}
-        [rel-select-opts tr entity-type]]
+   (->> (for [[k v :as kv] items
+              :let [{:keys [label style]} (meta kv)
+                    entity-type  (or (id->type v)
+                                     :entity.type/unknown)
+                    ->set-rel    (fn [e]
+                                   (let [rel (s->rel (e->v e))
+                                         kv' (assoc kv 0 rel)]
+                                     (if (= rel :remove)
+                                       (swap! state/query remove-kv kv)
+                                       (do
+                                         (when (not= kv kv')
+                                           (swap! state/query assoc :offset 0))
+                                         (swap! state/query replace-kv kv kv')))
+                                     (new-page!)))
+                    entity-label (tr entity-type)
+                    img-src      (-> sd/entity-types entity-type :img-src)]]
+          [:span.search-form__item {:key   kv
+                                    :style {:position "relative"}
+                                    :title entity-label}
+           (when img-src
+             [:img.entity-icon {:src img-src
+                                :alt entity-label}])
+           [:select.search-form__item-select {:on-change ->set-rel
+                                              :value     (rel->s k)}
+            [:optgroup {:label (tr ::field)}
+             [rel-select-opts tr entity-type]]
+            [:optgroup {:label (tr ::actions)}
+             [:option {:value "remove"} (tr ::remove)]]]
 
-       (when (not= k '_)
-         [:span.search-form__item-key
-          (tr k k)
-          " | "])
-       [:span.search-form__item-label
-        (let [label (or (when (= tr i18n/tr-da)
-                          (get sd/en-attr->da-attr label))
-                        (shared/local-name label)
-                        (str v))]
-          (if (= k :exactly)
-            [:i (str "\"" label "\"")]
-            label))]
-       [:button {:type     "button"                         ; prevent submit
-                 :title    (tr ::remove)
-                 :on-click (fn [e]
-                             (.preventDefault e)
-                             (swap! state/query remove-kv kv)
-                             (new-page!))}
-        "x"]]
-      " "])
-
-   ;; Only used to nudge users to add additional criteria.
-   [search-criteria-add tr]])
-
-(def condition-kv?
-  (comp sd/en-attr->da-attr second))
+           (when (not= k '_)
+             [:span.search-form__item-key
+              (tr k k)
+              ": "])
+           [:span.search-form__item-label
+            (let [label (or (when (= tr i18n/tr-da)
+                              (get sd/en-attr->da-attr label))
+                            (shared/local-name label)
+                            (str v))]
+              (if (= k :exactly)
+                [:i (str "\"" label "\"")]
+                label))]])
+        (interpose [:span.search-form__item-connection " & "]))])
 
 (defn search-form
   [_]
@@ -512,53 +487,49 @@
                           :not-allowed? false)))]
 
     (fn [tr]
-      (let [{:keys [items in order-by bad-input? not-allowed?]} @state/query
-            {:keys [results] :as search-state} @state/search
-            [order-rel] order-by]
+      (let [{:keys [items in bad-input? not-allowed?]} @state/query
+            {:keys [results] :as search-state} @state/search]
         [:form.search-form
          {:on-submit (fn [e] (.preventDefault e) (submit))}
 
-         [:div.input-row
-          [:label {:for "v"} (tr ::look-for)]
-          [:input {:type        "list"
-                   :list        "names"
-                   :placeholder (tr ::placeholder)
-                   :class       [(when not-allowed?
-                                   "not-allowed")
-                                 (when bad-input?
-                                   "bad-input")
-                                 (when (known-id search-state in)
-                                   "good-input")]
-                   :id          "v"
-                   :disabled    (nil? name->id)
-                   :on-change   set-in
-                   :on-focus    #(swap! state/ui assoc :focus "v")
-                   :on-blur     #(swap! state/ui dissoc :focus)
-                   :value       in}]
-          (when name->id
-            (if (= "da" @state/language)
-              [multi-input-data da-name-kvs]
-              [multi-input-data en-name-kvs]))
-
-          [:input {:type     "submit"
-                   :value    (tr ::go)
-                   :disabled (empty? in)}]]
-
          (when (not-empty items)
-           [:<>
-            [search-criteria tr id->type items]
+           [search-criteria tr id->type items])
 
-            ;; Remove when:
-            ;;   1) There are no results.
-            ;;   2) We can be sure it is not due to filtering by date.
-            ;; TODO: disabled for now, re-enable with support for e.g. years?
-            #_(let [condition? (some condition-kv? items)]
-                (when (or condition?
-                          (not (empty? results))
-                          (some? order-rel))
-                  [:details {:open (boolean (or order-rel condition?))}
-                   [:summary (tr ::options)]
-                   [search-result-postprocessing tr]]))])]))))
+         (when (or (empty? items)
+                   (not-empty results))
+           [:div.input-row
+            [:label.search-form__item-connection {:for "v"}
+             (if (empty? items)
+               [:img.search-icon {:src "/images/search.svg"}]
+               "＋")]
+            [:input {:type          "list"
+                     :list          "names"
+                     :auto-complete "off"
+                     :placeholder   (if (empty? items)
+                                      (tr ::placeholder)
+                                      (tr ::add-more))
+                     :class         [(when not-allowed?
+                                       "not-allowed")
+                                     (when bad-input?
+                                       "bad-input")
+                                     (when (known-id search-state in)
+                                       "good-input")]
+                     :id            "v"
+                     :disabled      (nil? name->id)
+                     :on-change     set-in
+                     :on-focus      #(swap! state/ui assoc :focus "v")
+                     :on-blur       #(swap! state/ui dissoc :focus)
+                     :value         in}]
+            (when name->id
+              (if (= "da" @state/language)
+                [multi-input-data da-name-kvs]
+                [multi-input-data en-name-kvs]))
+
+            [:input {:type     "submit"
+                     :value    (if (empty? items)
+                                 (tr ::go)
+                                 (tr ::add))
+                     :disabled (empty? in)}]])]))))
 
 (defn- set-offset
   [f n]
@@ -617,61 +588,12 @@
 (defn explanation
   [tr name->id]
   (let [n (count name->id)]
-    [:div.text-content
+    [:<>
      [tr ::explanation]
      (when-let [[k v] (nth (seq name->id) (rand-int n))]
        [tr ::explanation+
         [:strong [:em n]]
         [:strong [:em [:a {:href (rfe/href ::page {} {'_ v})} k]]]])]))
-
-(defn str->index-group
-  "The canonical index group for a given `s`; used for group-by."
-  [s]
-  (or
-    (when-let [initial-num (re-find #"^\d+" s)]
-      initial-num)
-    (when s
-      (first (str/upper-case (fshared/str-sort-val s))))))
-
-(defn- index-groups
-  [search-metadata entity-type]
-  (let [entities (get search-metadata entity-type)]
-    (->> (if (= entity-type :entity.type/person)
-           (map (fn [[k v]]
-                  (let [k' (fshared/surname-first k)]
-                    [(if (str/ends-with? k' ", ") k k') v]))
-                entities)
-           entities)
-         (group-by (comp str->index-group first))
-         (remove (comp nil? first))
-         (sort-by first)
-         (into []))))
-
-(defn index-links
-  [tr & [current-type]]
-  (->> (sort-by (comp tr first) sd/real-entity-types)
-       (map (fn [[entity-type {:keys [img-src]}]]
-              (if (= current-type entity-type)
-                [:span [:img.entity-icon {:src img-src}]
-                 (tr entity-type)]
-                [:a {:href     (fshared/index-href entity-type)
-                     :disabled (= current-type entity-type)}
-                 [:img.entity-icon {:src img-src}]
-                 (tr entity-type)])))
-       (interpose " ")
-       (into [:p.index-links])))
-
-(defn skip-links
-  [groups]
-  (into [:p.index-page__skip-links]
-        (->> groups
-             (map (fn [[letter]]
-                    (let [fragment (str "#" (fshared/legal-id letter))]
-                      [:a {:href     fragment
-                           :on-click #(fshared/find-fragment fragment)}
-                       letter])))
-             (interpose ", ")
-             (vec))))
 
 (defn index-content
   [kvs]
@@ -681,46 +603,52 @@
       [:a {:href (fshared/search-href v)}
        (shared/local-name (str k))]])])
 
+(defn result-list
+  "Generic display of title+content `kvs`; `val-com` renders the content."
+  [tr kvs val-com & [offset]]
+  [:ul.search-results
+   (for [[k {:keys [file/thumbnail file/name] :as v} :as kv]
+         (fshared/add-backgrounds kvs offset)
+         :let [src (fshared/backend-url (str "/file/" thumbnail))]]
+     [:li.thumb-result {:key k}
+      [:a.thumbnail {:title    (tr ::view-caption)
+                     :style    (:style (meta kv))
+                     :on-click #(cache-document-index! v)
+                     :href     (fshared/reader-href name)}
+       [:img {:src src}]]
+      [val-com v]])])
+
 (defn page
   []
   (let [{:keys [results name->id id->name metadata]
          :as   search-state} @state/search
         {:keys [offset items]} @state/query
         {:keys [query-params]} @state/location
-        index-type (some->> (get-in @state/location [:path-params :kind])
-                            (keyword "entity.type"))
+        index-type (fshared/current-index)
         tr         (i18n/->tr)]
     [:article.search-page
-     ;; React key needed for input to update after name->id has been fetched!
-     ^{:key [name->id tr]} [search-form tr]
-     (cond
-       index-type
+     (if index-type
        (when metadata
-         (let [groups (index-groups metadata index-type)]
-           [:<>
-            [:div.text-content.menu
-             [index-links tr index-type]
-             [:hr]
-             [skip-links groups]]
-            ^{:key groups} [fshared/kvs-list groups index-content]]))
-
-       results
-       (if (empty? results)
-         [:div.text-content
-          [:p (tr ::empty)]
-          (when (some (comp #{:exactly} first) items)
-            [:p (tr ::empty-exact)])]
-         [:<>
-          [:div.search-result
-           [search-paging tr results]
-           (when id->name
-             (let [kvs          (map (juxt :file/name identity) results)
-                   entity-table (partial search-result-table tr search-state)]
-               [fshared/kvs-list kvs entity-table offset]))
-           [search-paging tr results]]])
-
-       (empty? query-params)
+         (let [groups (fshared/index-groups metadata index-type)]
+           ^{:key groups} [fshared/kvs-list groups index-content]))
        [:<>
-        [:div.text-content.menu
-         [index-links tr]]
-        [explanation tr name->id]])]))
+        ;; React key needed for input to update after name->id has been fetched!
+        ^{:key [name->id tr]} [search-form tr]
+        (cond
+          results
+          (if (empty? results)
+            [:<>
+             [:p (tr ::empty)]
+             (when (some (comp #{:exactly} first) items)
+               [:p (tr ::empty-exact)])]
+            [:<>
+             [:div.search-result
+              [search-paging tr results]
+              (when id->name
+                (let [kvs          (map (juxt :file/name identity) results)
+                      entity-table (partial search-result-table tr search-state)]
+                  [result-list tr kvs entity-table offset]))
+              [search-paging tr results]]])
+
+          (empty? query-params)
+          [explanation tr name->id])])]))

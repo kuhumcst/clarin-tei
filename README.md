@@ -20,3 +20,10 @@ And to remove the remaining TIF files:
 ```shell
 find . -name "*.tif" -type f -exec rm -f {} \;
 ```
+
+To create thumbnails for search results:
+
+```shell
+mkdir thumbs
+find . -name '*.jpg' -exec convert '{}' -resize 360x640 -set filename:newname "%t.%e" 'thumbs/thumb-%[filename:newname]' \;
+```

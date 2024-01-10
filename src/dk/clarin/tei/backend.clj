@@ -80,13 +80,13 @@
     (throw (ex-info "invalid configuration" conf-error)))
   (let [csp (if bshared/development?
               {:default-src "'self' 'unsafe-inline' 'unsafe-eval' localhost:* 0.0.0.0:* ws://localhost:* ws://0.0.0.0:*"
-               :font-src    "'self'"
-               :style-src   "'self' 'unsafe-inline'"}
+               :font-src    "'self' https://rsms.me/inter/"
+               :style-src   "'self' 'unsafe-inline' https://rsms.me/inter/"}
               {:default-src "'self'"
                :base-uri    "'self'"
-               :font-src    "'self'"
+               :font-src    "'self' https://rsms.me/inter/"
                :script-src  "'self' 'unsafe-inline'"        ; TODO: unsafe-eval possibly only needed for dev main.js?
-               :style-src   "'self' 'unsafe-inline'"})]
+               :style-src   "'self' 'unsafe-inline' https://rsms.me/inter/"})]
     (cond-> {::http/routes         #((deref #'routes) sp-conf)
              ::http/type           :jetty
              ::http/host           "0.0.0.0"                ; "localhost" won't work on a KU-IT server
