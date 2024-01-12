@@ -14,3 +14,9 @@ The extracted TIF files were recursively converted and renamed using the followi
 find . -name '*.tif' -exec mogrify -format jpg -quality 70 {} +
 find . -name '*.jpg' -exec rename 's/(?<!.tif).jpg/.tif.jpg/g' {} +
 ```
+
+And to remove the remaining TIF files:
+
+```shell
+find . -name "*.tif" -type f -exec rm -f {} \;
+```
