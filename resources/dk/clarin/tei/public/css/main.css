@@ -490,7 +490,7 @@ details[open] summary {
 
     transition: all 0.2s;
     font-size: 20px;
-    color: var(--color);
+    color: var(--flexoki-black);
     border: 1px solid var(--flexoki-black);
     border-radius: 4px;
     background: white;
@@ -602,11 +602,22 @@ ul.search-results {
     margin-right: 24px;
     align-self: center;
     line-height: 0;
+}
+
+.illustration > img:first-of-type {
+    width: 100%;
+    cursor: zoom-in;
+}
+
+.thumbnail,
+.illustration > img:first-of-type {
     outline-offset: 2px;
     outline: 6px solid transparent;
     transition: all 0.1s;
 }
 
+.illustration > img:first-of-type:hover,
+.illustration > img:first-of-type:focus,
 .thumbnail:hover,
 .thumbnail:focus {
     outline-color: var(--flexoki-magenta-400);
@@ -634,9 +645,17 @@ li.thumb-result + li {
     flex-grow: 1;
 }
 
+.text-content {
+    padding: 24px;
+    background: white;
+    border: 1px solid var(--flexoki-magenta-600);
+    border-radius: 2px;
+}
+
 table.entity-metadata {
     border-collapse: collapse;
     width: 100%;
+    color: var(--flexoki-black);
 }
 
 table.entity-metadata td {
@@ -782,16 +801,6 @@ dl.kvs-list dd ul {
 dl.kvs-list dd li {
     margin-top: 12px;
     padding-left: 6px;
-}
-
-.reader-content {
-    transition: var(--transition);
-    padding: var(--padding-l);
-    margin: 0;
-    background: var(--background);
-    border-radius: 2px;
-    outline: 4px solid rgba(0,0,0,0.25);
-    margin: 4px; /* should match (=nullify) outline. */
 }
 
 .main-page em {

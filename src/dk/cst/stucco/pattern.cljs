@@ -188,49 +188,29 @@
                       :aria-roledescription "carousel"
                       :aria-label           aria-label
                       :aria-labelledby      aria-labelledby}
-       [:button.carousel__select {:aria-label (str "View slide number " i) ;TODO: localisation
-                                  :tab-index  (if prev? "0" "-1")
-                                  :on-click   (when prev? prev-slide)
-                                  :style      (nth styles (dec i) nil)}]
        [:div.carousel__slide {:role            "tabpanel"
                               :id              tab-panel-id
                               :aria-labelledby label-id
                               :style           (nth styles i)}
         [:div.carousel__slide-header
          [:div.carousel__slide-label {:id label-id} label]
-         (cond
-           ;; For multi-page documents, small black dots are used to indicate
-           ;; and navigate between the different pages.
-           (>= 10 slide-count 1)
-           (into [:div.slide-picker {:role        "tablist"
-                                     :on-key-down kbd/roving-tabindex-handler
-                                     :aria-label  "Choose a slide to display"}] ;TODO: localisation
-                 (for [n (range slide-count)
-                       :let [selected? (= n i)
-                             select    #(swap! state assoc :i n)]]
-                   [:span.slide-picker__dot {:role          "tab"
-                                             :aria-controls tab-panel-id
-                                             :aria-selected selected?
-                                             :tab-index     (if selected?
-                                                              "0"
-                                                              "-1")
-                                             :on-click      select}]))
+         [:div.carousel__controls
+          [:button.carousel__select {:aria-label (str "View slide number " i) ;TODO: localisation
+                                     :tab-index  (if prev? "0" "-1")
+                                     :on-click   (when prev? prev-slide)
+                                     :style      (nth styles (dec i) nil)}]
 
-           ;; For larger documents, the dots convert to a basic dropdown widget
-           (> slide-count 10)
-           [:div
-            "p. "
-            [:select {:value     i
-                      :on-change (fn [e]
-                                   (when-let [v (.-value (.-target e))]
-                                     (swap! state assoc :i (parse-long v))))}
-             (for [n (range slide-count)]
-               [:option {:key   n
-                         :value n}
-                (inc n)])]])]
+          [:select {:value     i
+                    :on-change (fn [e]
+                                 (when-let [v (.-value (.-target e))]
+                                   (swap! state assoc :i (parse-long v))))}
+           (for [n (range slide-count)]
+             [:option {:key   n
+                       :value n}
+              (inc n)])]
+          [:button.carousel__select {:aria-label (str "View slide number " (inc i)) ;TODO: localisation
+                                     :tab-index  (if next? "0" "-1")
+                                     :on-click   (when next? next-slide)
+                                     :style      (nth styles (inc i) nil)}]]]
         [:div.carousel__slide-separator]
-        content]
-       [:button.carousel__select {:aria-label (str "View slide number " (inc i)) ;TODO: localisation
-                                  :tab-index  (if next? "0" "-1")
-                                  :on-click   (when next? next-slide)
-                                  :style      (nth styles (inc i) nil)}]])))
+        content]])))

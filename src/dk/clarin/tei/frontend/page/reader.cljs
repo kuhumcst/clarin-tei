@@ -13,7 +13,6 @@
             [dk.clarin.tei.shared :as shared]
             [dk.cst.stucco.pattern :as pattern]
             [dk.cst.stucco.group :as group]
-            [dk.cst.stucco.document :as document]
             [dk.cst.stucco.util.css :as css]
             [dk.clarin.tei.db.tei :as db.tei]
             [dk.clarin.tei.frontend.page.search :as search-page]
@@ -169,7 +168,7 @@
     (fn [m]
       (let [pages (map with-columns (body->pages (:source (meta m))))
             kvs   (for [[_ [_ {:keys [n facs]}] :as page] pages]
-                    [(str "Side " n "; facs. " facs ".")
+                    [nil
                      (rewrite-inner page)])]
         ;; Currently, TEI data is updated on the page by way of a side-effect.
         ;; I'm unsure if there is a better way to do this.
@@ -226,11 +225,26 @@
 (def parse
   (memoize xml/parse))
 
+(defn- assert-alt
+  "Assert from the `attr` that the image has an alt text."
+  [{:keys [src alt] :as attr}]
+  (assert alt
+          (str src " lacks an alt text: " attr)))
+
+(defn illustration
+  "Illustration that can be full-screened if need be. Replaces [:img]."
+  [{:keys [src] :as attr}]
+  (assert-alt attr)
+  [:a.illustration {:href src}
+   [:img attr]])
+
 (defn facs-id->facs-page
   [tr id]
-  (let [url (fshared/backend-url (str "/file/" id ".jpg"))]
-    [id [document/illustration {:src url
-                                :alt (tr ::illustration-of-1 id)}]]))
+  (let [tif-url (fshared/backend-url (str "/file/" id))
+        jpg-url (str tif-url ".jpg")]
+    [[:a {:href jpg-url} (str id ".jpg")]
+     [illustration {:src jpg-url
+                    :alt (tr ::illustration-of-1 id)}]]))
 
 (defn normalize-facs
   "Turn `raw-facsimile` into a sorted sequential collection."
@@ -359,56 +373,32 @@
     [:article {:class (if local-preview?
                         "reader-preview-page"
                         "reader-page")}
-     (when local-preview?
-       [:input {:aria-label (tr ::local-file)
-                :type       "file"
-                :on-change  (fn [e]
-                              (when-let [file (.item e.target.files 0)]
-                                (.then (.text file)
-                                       (fn [s]
-                                         (set-content! (.-name file) s)))))}])
-
      (when hiccup
-       (if local-preview?
-         ;; Only for previewing TEI parsing functionality.
-         [pattern/tabs
-          {:i   0
-           :kvs (pattern/heterostyled
-                  [[[tr ::transcription]
-                    ^{:key tei} [rescope/scope hiccup tei-css]]
+       (let [transcription [pattern/tabs
+                            {:i   0
+                             :kvs [[[tr ::transcription]
+                                    ^{:key tei} [rescope/scope hiccup tei-css]]
 
-                   ["Metadata"
-                    (when id->name
-                      [:div.reader-content
-                       [entity-meta tr search-state entity]])]
+                                   ^{:style {:background "var(--flexoki-magenta-400)"
+                                             :color      "white"}}
+                                   ["Metadata"
+                                    (when id->name
+                                      [:section.text-content
+                                       [entity-meta tr search-state entity]])]]}
 
-                   ["TEI"
-                    [:pre.reader-content
-                     [:code {:style {:white-space "pre-wrap"}}
-                      tei]]]])}
-
-          {:id "tei-tabs"}]
-
-         ;; The primary page, displaying data fetched from the server.
-         [group/combination {:weights [1 1]}
-          (if pdf-src
-            [pdf-object pdf-src]
-            [pattern/carousel state/facs-carousel])
-          [pattern/tabs
-           {:i   0
-            :kvs (pattern/heterostyled
-                   (cond->> [["Metadata"
-                              (when id->name
-                                [:div.reader-content
-                                 [entity-meta tr search-state entity]])]
-
-                             ["TEI"
-                              [:pre.reader-content
-                               [:code {:style {:white-space "pre-wrap"}}
-                                tei]]]]
-
-                            body?
-                            (into
-                              [[[tr ::transcription]
-                                ^{:key tei} [rescope/scope hiccup tei-css]]])))}
-           {:id "tei-tabs"}]]))]))
+                            {:id "tei-tabs"}]]
+         (if local-preview?
+           [:<>
+            [:input {:aria-label (tr ::local-file)
+                     :type       "file"
+                     :on-change  (fn [e]
+                                   (when-let [file (.item e.target.files 0)]
+                                     (.then (.text file)
+                                            (fn [s]
+                                              (set-content! (.-name file) s)))))}]
+            transcription]
+           [group/combination {:weights [1 1]}
+            (if pdf-src
+              [pdf-object pdf-src]
+              [pattern/carousel state/facs-carousel])
+            transcription])))]))

@@ -40,7 +40,7 @@
           key-prefix   (hash vs)
           columns      (->> weights
                             (map #(str "minmax(min-content, " % "fr)"))
-                            (interpose "var(--grid-16)")
+                            (interpose "24px")
                             (str/join " "))
           resize-begin (fn [m n]
                          (fn [e]
