@@ -10,6 +10,7 @@ After=docker.service
 Type=oneshot
 RemainAfterExit=true
 WorkingDirectory=/etc/clarin-tei/clarin-tei/docker
+Environment="CLARIN_TEI_FILES_DIR=/etc/clarin-tei/files"
 ExecStart=/bin/docker-compose up -d --build --remove-orphans
 ExecStop=/bin/docker-compose down
 
