@@ -178,7 +178,7 @@
         1)
 
       (= k :file/name)
-      [:a {:href     (backend-url (str "/file/" v))
+      [:a {:href     (backend-url (str "/tei/file/" v))
            :download true}
        v]
 

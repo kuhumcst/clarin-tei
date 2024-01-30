@@ -240,7 +240,7 @@
 
 (defn facs-id->facs-page
   [tr id]
-  (let [tif-url (fshared/backend-url (str "/file/" id))
+  (let [tif-url (fshared/backend-url (str "/tei/file/" id))
         jpg-url (str tif-url ".jpg")]
     [[:a {:href jpg-url} (str id ".jpg")]
      [illustration {:src jpg-url
@@ -271,12 +271,12 @@
     (swap! state/reader assoc :i 0 :document nil))
 
   ;; TODO: fix :tei-kvs side-effect, makes it hard to implement history/cache
-  (p/let [tei              (or xml (api/fetch (str "/file/" document)))
+  (p/let [tei              (or xml (api/fetch (str "/tei/file/" document)))
           clean-tei        (db.tei/remove-oxygen-declaration tei)
           entity           (if xml
                              (-> (db.tei/->triples document xml)
                                  (db.tei/triples->entity))
-                             (api/fetch (str "/entity/" document)))
+                             (api/fetch (str "/tei/entity/" document)))
           raw-hiccup       (parse clean-tei)
           tr               (i18n/->tr)
           facs             (->> (normalize-facs (:document/facsimile entity))
@@ -360,7 +360,7 @@
         pdf-src            (and (not body?)
                                 (string? facsimile)
                                 (str/ends-with? facsimile ".pdf")
-                                (fshared/backend-url (str "/file/" facsimile)))]
+                                (fshared/backend-url (str "/tei/file/" facsimile)))]
 
     ;; Uses a side-effect of the rendering function to load new documents.
     ;; Probably a bad way to do this...

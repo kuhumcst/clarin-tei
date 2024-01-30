@@ -3,7 +3,6 @@
   (:require [asami.core :as d]
             [dk.clarin.tei.static-data :as sd]
             [io.pedestal.log :as log]
-            [dk.clarin.tei.shared :as shared]
             [dk.clarin.tei.db.file :as db.file]
             [dk.clarin.tei.db.tei :as db.tei]))
 
@@ -78,8 +77,7 @@
 
 (defn bootstrap!
   "Asynchronously bootstrap an in-memory Asami database from a `conf`."
-  [{:keys [files-dir db-dir] :as conf}]
-  #_(log/info :bootstrap.asami/persisted-storage {:db (pconn db-dir)})
+  [{:keys [files-dir] :as conf}]
   (log-transaction! :files (db.file/file-entities files-dir))
   (let [file-entities  (map db.tei/file->entity (tei-files conn))
         named-entities (concat (mapcat (comp :entities meta) file-entities)
@@ -88,8 +86,7 @@
     (log-transaction! :named-entities named-entities)))
 
 (comment
-  (bootstrap! {:files-dir "/Users/rqf595/everyman-corpus"
-               :db-dir    "/Users/rqf595/.clarin-tei/db"})
+  (bootstrap! {:files-dir "/Users/rqf595/everyman-corpus"})
   (count (tei-files conn))
   (dk5-ids conn)
 

@@ -16,11 +16,11 @@
             [dk.clarin.tei.frontend.page.reader :as reader]))
 
 (def routes
-  [["/tei/privacy"
+  [["/tei/app/privacy"
     {:name  ::privacy/page
      :title ::privacy
      :page  privacy/page}]
-   ["/tei/search"
+   ["/tei/app/search"
     {:name  ::search/page
      :title search/page-title
      :page  search/page
@@ -29,7 +29,7 @@
                    (do
                      (search/?query-reset!)
                      (fshared/set-title! (search/page-title)))))}]
-   ["/tei/search/:kind"
+   ["/tei/app/search/:kind"
     {:name  ::search/index-page
      :title (fn [m]
               (search/?query-reset!)
@@ -37,11 +37,11 @@
                    (keyword "entity.type")
                    ((i18n/->tr))))
      :page  search/page}]
-   ["/tei/reader"
+   ["/tei/app/reader"
     {:name  ::reader/preview
      :title ::local-reader
      :page  reader/page}]
-   ["/tei/reader/:document"
+   ["/tei/app/reader/:document"
     {:name  ::reader/page
      :title (fn [m]
               (get-in m [:path-params :document]))
@@ -121,7 +121,7 @@
           [:nav
            [:a {:href "https://github.com/kuhumcst/clarin-tei"}
             "Github"]
-           [:a {:href "/tei/privacy"}
+           [:a {:href "/tei/app/privacy"}
             (tr ::privacy)]
            [:a {:href "https://www.was.digst.dk/clarin-dk"}
             (tr ::a11y)]]]]

@@ -39,3 +39,14 @@ cp system/clarin-tei.service /etc/systemd/system/clarin-tei.service
 systemctl enable clarin-tei
 systemctl start clarin-tei
 ```
+
+Currently, this system requires a separate reverse proxy to be available on the public Internet.
+
+For e.g. an nginx setup, the following snippet should be included:
+
+```
+location /tei {
+	include proxy_params;
+	proxy_pass http://127.0.0.1:6789/;
+}
+```

@@ -119,7 +119,7 @@
 (defn fetch-metadata!
   "Fetches and post-processes metadata used to populate the search form."
   []
-  (.then (api/fetch "/search/metadata")
+  (.then (api/fetch "/tei/search/metadata")
          (fn [{:keys [search-metadata top-30-kvs]}]
            (let [name->id           (apply merge (vals search-metadata))
                  lowercase-name->id (update-keys name->id str/lower-case)
@@ -181,7 +181,7 @@
     (do
       (swap! state/search dissoc :results)
       (reset! state/query state/query-defaults))
-    (.then (api/fetch "/search" {:query-params query-params})
+    (.then (api/fetch "/tei/search" {:query-params query-params})
            #(do
               (swap! state/search assoc :results (attach-indices %))
               (when f (f))))))
@@ -609,7 +609,7 @@
   [:ul.search-results
    (for [[k {:keys [file/thumbnail file/name] :as v} :as kv]
          (fshared/add-backgrounds kvs offset)
-         :let [src (fshared/backend-url (str "/file/" thumbnail))]]
+         :let [src (fshared/backend-url (str "/tei/file/" thumbnail))]]
      [:li.thumb-result {:key k}
       [:a.thumbnail {:title    (tr ::view-caption)
                      :style    (:style (meta kv))

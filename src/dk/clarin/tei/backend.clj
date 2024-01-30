@@ -20,25 +20,26 @@
    are the exception."
   [conf]
   (let [redirect-to-search [(fn [_] {:status  301
-                                     :headers {"Location" "/tei/search"}})]
+                                     :headers {"Location" "/tei/app/search"}})]
         spa-chain          [endpoints/lang-neg index/handler]]
 
     ;; These first few routes all lead to the SPA
     #{["/" :get redirect-to-search :route-name ::root]
-      ["/tei" :get redirect-to-search :route-name ::spa]
-      ["/tei/*" :get spa-chain :route-name ::spa-path]
+      ["/tei" :get redirect-to-search :route-name ::tei]
+      ["/tei/app" :get redirect-to-search :route-name ::spa]
+      ["/tei/app/*" :get spa-chain :route-name ::spa-path]
 
       ;; API routes
-      ["/file/:filename"
+      ["/tei/file/:filename"
        :get endpoints/file-chain
        :route-name ::endpoints/file]
-      ["/entity/:id"
+      ["/tei/entity/:id"
        :get endpoints/entity-chain
        :route-name ::endpoints/entity]
 
       ;; Unrestricted at the route level, but performs local authorization.
       ;; Refer to the source code of the 'search-handler' for details.
-      ["/search"
+      ["/tei/search"
        :get endpoints/search-chain
        :route-name ::endpoints/search]
 
@@ -46,7 +47,7 @@
       ;; information about these names. It is needed to construct unrestricted
       ;; pages such as the bibliography page. Otherwise, that page would have to
       ;; be hidden. Under GDPR this will likely constitute legitimate interest.
-      ["/search/metadata"
+      ["/tei/search/metadata"
        :get endpoints/search-metadata-chain
        :route-name ::endpoints/search-metadata]}))
 
