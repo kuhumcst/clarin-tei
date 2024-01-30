@@ -4,40 +4,40 @@
 (def real-entity-types
   "The core searchable entities (with index pages)."
   {:entity.type/person
-   {:img-src "/images/person-sharp-svgrepo-com.svg"}
+   {:img-src "/tei/images/person-sharp-svgrepo-com.svg"}
 
    :entity.type/century
-   {:img-src "/images/hourglass-2.svg"}
+   {:img-src "/tei/images/hourglass-2.svg"}
 
    :entity.type/category
-   {:img-src "/images/book-fill.svg"}})
+   {:img-src "/tei/images/book-fill.svg"}})
 
 ;:entity.type/language
-;{:img-src "/images/speech-bubble-svgrepo-com.svg"}})
+;{:img-src "/tei/images/speech-bubble-svgrepo-com.svg"}})
 
 ;:entity.type/domain
-;{:img-src "/images/university-svgrepo-com.svg"}
+;{:img-src "/tei/images/university-svgrepo-com.svg"}
 ;
 ;:entity.type/archive
-;{:img-src "/images/archive-svgrepo-com.svg"}
+;{:img-src "/tei/images/archive-svgrepo-com.svg"}
 ;
 ;:entity.type/publication
-;{:img-src "/images/book-fill.svg"}
+;{:img-src "/tei/images/book-fill.svg"}
 ;
 ;:entity.type/term
-;{:img-src "/images/label-svgrepo-com.svg"}
+;{:img-src "/tei/images/label-svgrepo-com.svg"}
 ;
 ;:entity.type/english-term
-;{:img-src "/images/label-svgrepo-com.svg"}
+;{:img-src "/tei/images/label-svgrepo-com.svg"}
 ;
 ;:entity.type/place
-;{:img-src "/images/earth-fill.svg"}
+;{:img-src "/tei/images/earth-fill.svg"}
 ;
 ;:entity.type/organisation
-;{:img-src "/images/people-group-svgrepo-com.svg"}
+;{:img-src "/tei/images/people-group-svgrepo-com.svg"}
 ;
 ;:entity.type/linguistic-organisation
-;{:img-src "/images/people-group-svgrepo-com.svg"}})
+;{:img-src "/tei/images/people-group-svgrepo-com.svg"}})
 
 (def special-entity-types
   "These do not correspond to actual entities, but rather to searchable
@@ -47,7 +47,7 @@
   {:document/condition
    ;; TODO: move translations to i18n ns??
    {:en->da  {"transcribed" "transkriberet"}
-    :img-src "/images/paper-sheet-svgrepo-com.svg"}})
+    :img-src "/tei/images/paper-sheet-svgrepo-com.svg"}})
 
 (def static-entities
   [{:db/ident         "#unknown_person"

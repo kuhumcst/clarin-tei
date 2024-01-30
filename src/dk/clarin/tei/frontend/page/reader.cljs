@@ -25,7 +25,7 @@
 (def tei-css
   "Styles used for TEI documents specifically. They are written in a regular CSS
   file and then processed to work on the generated HTML."
-  (style/prefix-css "tei" (resource/inline "dk/clarin/tei/public/css/tei.css")))
+  (style/prefix-css "tei" (resource/inline "dk/clarin/tei/css/tei.css")))
 
 (def theme+tei-css
   "The complete set of styles (widgets and TEI documents)."

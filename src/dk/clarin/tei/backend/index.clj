@@ -22,12 +22,12 @@
     [:meta {:name    "viewport"
             :content "width=device-width, initial-scale=1.0"}]
     [:title (str (when bshared/development? "(dev) ") "Clarin TEI")]
-    [:link {:rel "icon" :href (cb "/images/favicon.svg")}]
-    [:link {:rel "mask-icon" :href (cb "/images/favicon.svg") :color "#a02c2c"}]
+    [:link {:rel "icon" :href (cb "/tei/images/favicon.svg")}]
+    [:link {:rel "mask-icon" :href (cb "/tei/images/favicon.svg") :color "#a02c2c"}]
     [:link {:rel "preconnect" :href "https://rsms.me/"}]
     [:link {:rel "stylesheet" :href "https://rsms.me/inter/inter.css"}]
-    [:link {:rel "stylesheet" :href (cb "/css/main.css")}]
-    [:link {:rel "stylesheet" :href (cb "/css/theme.css")}]]
+    [:link {:rel "stylesheet" :href (cb "/tei/css/main.css")}]
+    [:link {:rel "stylesheet" :href (cb "/tei/css/theme.css")}]]
    [:body
     [:div#app]
     [:script
@@ -35,7 +35,7 @@
      ;; values are passed on to the SPA along with the compiled main.js code.
      (str "var negotiatedLanguage = '" (pr-str negotiated-language) "';\n"
           "var inDevelopmentEnvironment = " bshared/development? ";\n")]
-    [:script {:src (cb (str "/js/compiled/" bshared/main-js))}]]])
+    [:script {:src (cb (str "/tei/js/compiled/" bshared/main-js))}]]])
 
 (defn index-html
   [negotiated-language]

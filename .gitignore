@@ -238,8 +238,8 @@ temp/
 
 # End of https://www.gitignore.io/api/node,java,clojure,intellij
 
-/resources/dk/clarin/tei/public/js/compiled
-/resources/dk/clarin/tei/public/js/test
+/resources/dk/clarin/tei/js/compiled
+/resources/dk/clarin/tei/js/test
 .idea
 .shadow-cljs
 package-lock.json

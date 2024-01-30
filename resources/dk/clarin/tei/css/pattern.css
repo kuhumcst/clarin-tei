@@ -198,7 +198,7 @@
 button.carousel__select {
     width: 36px; /* Dummy value to allow for transitions. */
     padding: 0;
-    background: url(/images/arrow-right.svg);
+    background: url(/tei/images/arrow-right.svg);
     border: none;
     height: 36px;
     opacity: 0.2;
@@ -225,7 +225,7 @@ button.carousel__select {
 }
 
 button.carousel__select:first-child {
-    background: url(/images/arrow-left.svg);
+    background: url(/tei/images/arrow-left.svg);
 }
 
 /* Removes the left border instead of the right. */

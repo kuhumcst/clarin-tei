@@ -1,6 +1,6 @@
 :root {
     /* Defaults. */
-    --background: #FFF url(/images/texture/groovepaper.png);
+    --background: #FFF url(/tei/images/texture/groovepaper.png);
     --border: 1px solid #666;
     --border-some: 1px solid #666;
     --border-subtle: 1px solid #AAA;
@@ -34,7 +34,7 @@
     --grid-64: 64px;
 
     /* Variations. */
-    --background-darker: #EDEAE8 url(/images/texture/asfalt-dark.png);
+    --background-darker: #EDEAE8 url(/tei/images/texture/asfalt-dark.png);
     --box-shadow-hidden: 0 0 0 0 rgba(0,0,0,0);
     --box-shadow-elevated: 0 8px 8px rgba(0,0,0,0.2);
     --box-shadow-elevated-reverse: 0 -8px 8px rgba(0,0,0,0.2);
@@ -62,7 +62,7 @@
     --transform-elevated: scale(1.04);
 
     /* Custom. */
-    --tab-background-1: #ffc92e url(/images/texture/natural-paper.png); /* yellow */
-    --tab-background-2: #ff663c url(/images/texture/natural-paper.png); /* red */
-    --tab-background-3: #779eff url(/images/texture/natural-paper.png); /* blue */
+    --tab-background-1: #ffc92e url(/tei/images/texture/natural-paper.png); /* yellow */
+    --tab-background-2: #ff663c url(/tei/images/texture/natural-paper.png); /* red */
+    --tab-background-3: #779eff url(/tei/images/texture/natural-paper.png); /* blue */
 }

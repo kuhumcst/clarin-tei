@@ -500,7 +500,7 @@
            [:div.input-row
             [:label.search-form__item-connection {:for "v"}
              (if (empty? items)
-               [:img.search-icon {:src "/images/search.svg"}]
+               [:img.search-icon {:src "/tei/images/search.svg"}]
                "＋")]
             [:input {:type          "list"
                      :list          "names"
@@ -580,7 +580,7 @@
                               :href     (fshared/reader-href name)}
                    (fshared/break-str title)
                    [:img.action__icon
-                    {:src "/images/external-link-svgrepo-com.svg"}]]
+                    {:src "/tei/images/external-link-svgrepo-com.svg"}]]
         kvs       (concat [[:document/title hyperlink]]
                           (select-keys entity sd/search-result-rels))]
     [fshared/metadata-table tr search-state entity kvs]))

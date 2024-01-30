@@ -188,7 +188,7 @@ button.back {
     transition: all 0.2s;
     margin-top: 12px;
     margin-bottom: -12px;
-    background: url(/images/backward-svgrepo-com.svg);
+    background: url(/tei/images/backward-svgrepo-com.svg);
     background-size: 12px;
     background-repeat: no-repeat;
     background-position: 2px center;
@@ -356,7 +356,7 @@ label:hover {
     color: transparent;
 
     transition: all 0.2s;
-    background: url(/images/x-black.svg) no-repeat center;
+    background: url(/tei/tei/images/x-black.svg) no-repeat center;
     background-size: 24px;
     line-height: 24px;
     height: 24px;
@@ -403,7 +403,7 @@ a:hover img.action__icon {
     color: transparent;
 
     transition: all 0.2s;
-    background: url(/images/x-black.svg) no-repeat center;
+    background: url(/tei/images/x-black.svg) no-repeat center;
     background-size: 16px;
     width: 20px;
     vertical-align: text-bottom;

@@ -44,9 +44,9 @@
                                     :da "Bibliografi"}
    ::frontend/bibliography-caption {:en "View relevant works"
                                     :da "Se relevante værker"}
-   ::frontend/language-flag        {:en [:img.language-icon {:src "/images/united-kingdom-svgrepo-com.svg"
+   ::frontend/language-flag        {:en [:img.language-icon {:src "/tei/images/united-kingdom-svgrepo-com.svg"
                                                              :alt "Union Jack"}]
-                                    :da [:img.language-icon {:src "/images/denmark-svgrepo-com.svg"
+                                    :da [:img.language-icon {:src "/tei/images/denmark-svgrepo-com.svg"
                                                              :alt "Dannebrog"}]}
    ::frontend/language-caption     {:en "English (klik for skifte til dansk)"
                                     :da "Dansk (click to switch to English)"}

@@ -13,7 +13,7 @@
   that is not the case when running the regular shadow-cljs watch process.
 
   It relies on :module-hash-names being set to true in shadow-cljs.edn."
-  (if-let [url (resource "public/js/compiled/manifest.edn")]
+  (if-let [url (resource "js/compiled/manifest.edn")]
     (-> url slurp edn/read-string first :output-name)
     "main.js"))
 

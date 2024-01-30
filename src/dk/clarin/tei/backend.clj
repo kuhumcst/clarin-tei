@@ -71,7 +71,7 @@
              ::http/type           :jetty
              ::http/host           "0.0.0.0"                ; "localhost" won't work on a KU-IT server
              ::http/port           6789
-             ::http/resource-path  "/dk/clarin/tei/public"
+             ::http/resource-path  "/dk/clarin"
 
              ;; Using the starter policy from https://content-security-policy.com/ as a basis
              ::http/secure-headers {:content-security-policy-settings csp}}

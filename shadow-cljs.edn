@@ -1,9 +1,9 @@
 {:deps     {:aliases [:frontend :test]}
- :dev-http {9000 {:root    "resources/dk/clarin/tei/public"
+ :dev-http {9000 {:root    "resources/dk/clarin/tei"
                   :handler dk.clarin.tei.backend.index/handler}}
  :nrepl    {:port 9900}
  :builds   {:app  {:target            :browser
-                   :output-dir        "resources/dk/clarin/tei/public/js/compiled"
+                   :output-dir        "resources/dk/clarin/tei/js/compiled"
                    :asset-path        "/js/compiled"
                    :compiler-options  {:data-readers  true
                                        :infer-externs :auto}
@@ -13,6 +13,6 @@
                    ;; https://shadow-cljs.github.io/docs/UsersGuide.html#build-report
                    :build-hooks       [(shadow.cljs.build-report/hook)]}
             :test {:target   :browser-test
-                   :test-dir "resources/dk/clarin/tei/public/js/test"
+                   :test-dir "resources/dk/clarin/tei/js/test"
                    :devtools {:http-port 9100
-                              :http-root "resources/dk/clarin/tei/public/js/test"}}}}
+                              :http-root "resources/dk/clarin/tei/js/test"}}}}
