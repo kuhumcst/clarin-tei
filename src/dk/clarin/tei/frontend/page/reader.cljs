@@ -397,7 +397,7 @@
                                             (fn [s]
                                               (set-content! (.-name file) s)))))}]
             transcription]
-           [group/combination {:weights [1 1]}
+           [group/combination {:weights [35 65]}
             (if pdf-src
               [pdf-object pdf-src]
               [pattern/carousel state/facs-carousel])
