@@ -3,23 +3,11 @@
   (:require [reagent.core :as r]
             [reagent.cookies :as cookie]
             [clojure.edn :as edn]
-            [dk.cst.stucco.util.state :as su]
-            [dk.cst.pedestal.sp.auth :as sp.auth]))
+            [dk.cst.stucco.util.state :as su]))
 
 (defonce development?
   (when (exists? js/inDevelopmentEnvironment)
     js/inDevelopmentEnvironment))
-
-;; Loading assertions and saml-paths by passing an EDN string in index.html
-(defonce assertions
-  (if (exists? js/SAMLAssertions)
-    (edn/read-string js/SAMLAssertions)
-    {}))
-
-(defonce paths
-  (if (exists? js/SAMLPaths)
-    (edn/read-string js/SAMLPaths)
-    {}))
 
 (defonce language
   (r/atom
@@ -28,12 +16,6 @@
       (if (exists? js/negotiatedLanguage)
         (:type (edn/read-string js/negotiatedLanguage))
         "en"))))
-
-(defonce authenticated?
-  (r/atom
-    (sp.auth/if-permit [assertions :authenticated]
-      true
-      false)))
 
 (defonce fetches
   (r/atom #{}))

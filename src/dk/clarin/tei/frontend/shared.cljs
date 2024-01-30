@@ -14,7 +14,7 @@
 (defn backend-url
   [url]
   (if state/development?
-    (str "http://localhost:8080" url)
+    (str "http://localhost:6789" url)
     url))
 
 (defn -surname-first

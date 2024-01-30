@@ -9,8 +9,7 @@
             [asami.core :as d]
             [dk.clarin.tei.db :refer [conn]]         ; TODO: attach this in an interceptor instead, reducing decoupling?
             [dk.clarin.tei.db.search :as db.search]
-            [dk.clarin.tei.shared :refer [parse-date utc-dtf]]
-            [dk.cst.pedestal.sp.auth :as sp.auth]))
+            [dk.clarin.tei.shared :refer [parse-date utc-dtf]]))
 
 (def one-month-cache
   "private, max-age=2592000")
@@ -146,8 +145,6 @@
                 _]
          :as   params} (update-vals query-params (comp ?keywordize pipe-split))
         wildcard _                                          ; _ is used for noop
-        #_#__ (when-not (whitelisted (:entity/type params))
-                (sp.auth/enforce-condition request :authenticated))
         entity   (-> (handle-file-extension params)
                      (dissoc :_ :limit :offset :order-by :from :to)
                      (cond-> wildcard (assoc '_ wildcard)))

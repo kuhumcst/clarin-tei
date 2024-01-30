@@ -14,8 +14,6 @@
 
              kuhumcst/hiccup-tools        {:git/url "https://github.com/kuhumcst/hiccup-tools.git"
                                            :sha     "19a001769241afe6fc12a82c17ec74d441f617bb"}
-             kuhumcst/pedestal-sp         {:git/url "https://github.com/kuhumcst/pedestal-sp.git"
-                                           :sha     "b48fb45f86526b250545b569da48a80d5dea9ed9"}
              kuhumcst/cuphic              {:git/url "https://github.com/kuhumcst/cuphic.git"
                                            :sha     "f2b96835004467628351355a77fc3207a5beb557"}
              kuhumcst/rescope             {:git/url "https://github.com/kuhumcst/rescope.git"

@@ -184,8 +184,4 @@
     (set! (.-innerHTML style) root-style)
     (js/document.head.appendChild style))
 
-  ;; Needed for debugging login process
-  (println "SAML assertions:")
-  (prn state/assertions)
-
   (render))

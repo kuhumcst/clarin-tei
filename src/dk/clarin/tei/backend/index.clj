@@ -2,7 +2,6 @@
   "Generate the index.html file using Clojure. This is mostly done to streamline
   fingerprinting of any included files in the release version."
   (:require [hiccup.core :as hiccup]
-            [dk.cst.pedestal.sp.auth :as sp.auth]
             [dk.clarin.tei.backend.shared :as bshared])
   (:import [java.util Date]))
 
@@ -16,7 +15,7 @@
   (str path "?" init-hash))
 
 (defn index-hiccup
-  [assertions saml-paths negotiated-language]
+  [negotiated-language]
   [:html {:lang "da"}
    [:head
     [:meta {:charset "utf-8"}]
@@ -34,27 +33,18 @@
     [:script
      ;; Rather than having an extra endpoint that the SPA needs to access, these
      ;; values are passed on to the SPA along with the compiled main.js code.
-     (str "var SAMLAssertions = '" (pr-str assertions) "';\n"
-          "var SAMLPaths = '" (pr-str saml-paths) "';\n"
-          "var negotiatedLanguage = '" (pr-str negotiated-language) "';\n"
+     (str "var negotiatedLanguage = '" (pr-str negotiated-language) "';\n"
           "var inDevelopmentEnvironment = " bshared/development? ";\n")]
     [:script {:src (cb (str "/js/compiled/" bshared/main-js))}]]])
 
 (defn index-html
-  [assertions saml-paths negotiated-language]
+  [negotiated-language]
   (str
     "<!DOCTYPE html>"
-    (hiccup/html (index-hiccup assertions saml-paths negotiated-language))))
+    (hiccup/html (index-hiccup negotiated-language))))
 
 (defn handler
   [{:keys [accept-language] :as request}]
   {:status  200
    :headers {"Content-Type" "text/html"}
-   :body    (index-html (sp.auth/request->assertions request)
-                        (-> request :conf :paths)
-                        accept-language)})
-
-(defn shadow-handler
-  "Handler used by the shadow-cljs watch process which overrides auth."
-  [request]
-  (handler (assoc-in request [:session :saml :assertions :condition] :all)))
+   :body    (index-html accept-language)})

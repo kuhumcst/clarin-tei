@@ -1,6 +1,6 @@
 {:deps     {:aliases [:frontend :test]}
  :dev-http {9000 {:root    "resources/dk/clarin/tei/public"
-                  :handler dk.clarin.tei.backend.index/shadow-handler}}
+                  :handler dk.clarin.tei.backend.index/handler}}
  :nrepl    {:port 9900}
  :builds   {:app  {:target            :browser
                    :output-dir        "resources/dk/clarin/tei/public/js/compiled"

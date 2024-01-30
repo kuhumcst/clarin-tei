@@ -1,16 +1,10 @@
 (ns dk.clarin.tei.backend
   "The central namespace of the backend app; defines backend routing."
-  (:require [clojure.set :as set]
+  (:require [clojure.edn :as edn]
             [clojure.java.io :as io]
-            [clojure.spec.alpha :as s]
             [io.pedestal.log :as log]
             [io.pedestal.http :as http]
             [io.pedestal.http.route :as route]
-            [io.pedestal.interceptor :as ic]
-            [dk.cst.pedestal.sp.routes :as sp.routes]
-            [dk.cst.pedestal.sp.conf :as sp.conf]
-            [dk.cst.pedestal.sp.interceptors :as sp.ic]
-            [dk.cst.pedestal.sp.example :as example]
             [dk.clarin.tei.backend.shared :as bshared]
             [dk.clarin.tei.backend.index :as index]
             [dk.clarin.tei.backend.endpoints :as endpoints]
@@ -19,26 +13,15 @@
   (:gen-class))
 
 (defonce server (atom nil))
-(defonce sp-conf (atom nil))
-
-(defn ->conf-ic
-  "Return an interceptor that assocs the `conf` to the request."
-  [conf]
-  (ic/interceptor
-    {:name  ::saml-paths
-     :enter (fn [ctx]
-              (update ctx :request assoc :conf conf))}))
+(defonce loaded-conf (atom nil))
 
 (defn clarin-tei-routes
-  "Most of the routing happens on the frontend inside the SPA. The API routes
-   are an exception (as well as the SAML routes required for Pedestal SP)."
+  "Most of the routing happens on the frontend inside the SPA; the API routes
+   are the exception."
   [conf]
   (let [redirect-to-search [(fn [_] {:status  301
                                      :headers {"Location" "/tei/search"}})]
-        conf-ic            (->conf-ic conf)
-        all                (conj (sp.ic/auth-chain conf :all) conf-ic)
-        authenticated      (conj (sp.ic/auth-chain conf :authenticated) conf-ic)
-        spa-chain          (conj all endpoints/lang-neg index/handler)]
+        spa-chain          [endpoints/lang-neg index/handler]]
 
     ;; These first few routes all lead to the SPA
     #{["/" :get redirect-to-search :route-name ::root]
@@ -47,16 +30,16 @@
 
       ;; API routes
       ["/file/:filename"
-       :get (into all endpoints/file-chain)
+       :get endpoints/file-chain
        :route-name ::endpoints/file]
       ["/entity/:id"
-       :get (into all endpoints/entity-chain)
+       :get endpoints/entity-chain
        :route-name ::endpoints/entity]
 
       ;; Unrestricted at the route level, but performs local authorization.
       ;; Refer to the source code of the 'search-handler' for details.
       ["/search"
-       :get (into all endpoints/search-chain)
+       :get endpoints/search-chain
        :route-name ::endpoints/search]
 
       ;; The metadata contains names and internal IDs, but it doesn't contain
@@ -68,16 +51,12 @@
        :route-name ::endpoints/search-metadata]}))
 
 (defn routes
-  [sp-conf]
+  [conf]
   (route/expand-routes
-    (set/union (clarin-tei-routes sp-conf)
-               (sp.routes/all sp-conf))))
+    (clarin-tei-routes conf)))
 
 (defn ->service-map
-  [sp-conf]
-  (when-let [conf-error (s/explain-data ::sp.conf/config sp-conf)]
-    (log/error :bootstrap.conf/invalid conf-error)
-    (throw (ex-info "invalid configuration" conf-error)))
+  [conf]
   (let [csp (if bshared/development?
               {:default-src "'self' 'unsafe-inline' 'unsafe-eval' localhost:* 0.0.0.0:* ws://localhost:* ws://0.0.0.0:*"
                :font-src    "'self' https://rsms.me/inter/"
@@ -87,10 +66,10 @@
                :font-src    "'self' https://rsms.me/inter/"
                :script-src  "'self' 'unsafe-inline'"        ; TODO: unsafe-eval possibly only needed for dev main.js?
                :style-src   "'self' 'unsafe-inline' https://rsms.me/inter/"})]
-    (cond-> {::http/routes         #((deref #'routes) sp-conf)
+    (cond-> {::http/routes         #((deref #'routes) conf)
              ::http/type           :jetty
              ::http/host           "0.0.0.0"                ; "localhost" won't work on a KU-IT server
-             ::http/port           8080
+             ::http/port           6789
              ::http/resource-path  "/dk/clarin/tei/public"
 
              ;; Using the starter policy from https://content-security-policy.com/ as a basis
@@ -99,20 +78,17 @@
       ;; Make sure we can communicate with the Shadow CLJS app during dev.
       bshared/development? (assoc ::http/allowed-origins (constantly true)))))
 
-(defn load-sp-conf!
-  "Load the config file (superset of a Pedestal SP config) at `conf-path`."
+(defn load-conf!
+  "Load the config file at `conf-path`."
   [conf-path]
   (log/info :bootstrap.conf/load conf-path)
-  (reset! sp-conf (cond-> (sp.conf/init (sp.conf/read-file! conf-path))
-                    ;; Comment out this line to use auth during dev.
-                    ;; Make sure to reload the sp-conf and restart!
-                    bshared/development? (assoc :auth-override :all))))
+  (reset! loaded-conf (edn/read-string (slurp conf-path))))
 
 (defn start-prod
   "Start a production environment using the config file at `conf-path`."
   [conf-path]
   (log/info :bootstrap/start {:dev? false})
-  (let [conf        (load-sp-conf! conf-path)
+  (let [conf        (load-conf! conf-path)
         service-map (->service-map conf)]
     (db/bootstrap! conf)
     (log/info :bootstrap.asami/begin-cache-names true)
@@ -121,19 +97,23 @@
     (log/info :bootstrap.server/service-map service-map)
     (http/start (http/create-server service-map))))
 
+(defn in-home
+  [path]
+  (str (System/getProperty "user.home") path))
+
 (defn start-dev []
   "Start a development environment using the config file at `conf-path`."
   (log/info :bootstrap/start {:dev? true})
 
   ;; NOTE: only bootstraps once in dev mode!
   ;; This facilitates quick server restarts when developing at the REPL.
-  (if (not @sp-conf)
-    (-> (example/in-home "/.clarin-tei/repl-conf.edn")
-        (load-sp-conf!)
+  (if (not @loaded-conf)
+    (-> (in-home "/.clarin-tei/repl-conf.edn")
+        (load-conf!)
         (db/bootstrap!))
     (log/info :bootstrap.conf/skip true))
 
-  (let [service-map (assoc (->service-map @sp-conf) ::http/join? false)]
+  (let [service-map (assoc (->service-map @loaded-conf) ::http/join? false)]
     (log/info :bootstrap.server/service-map service-map)
     (reset! server (http/start (http/create-server service-map)))))
 
@@ -162,7 +142,7 @@
     (log/error :bootstrap.conf/missing conf-path)))
 
 (comment
-  @sp-conf
+  @loaded-conf
   (restart-dev)
   (start-dev)
   (stop-dev)
