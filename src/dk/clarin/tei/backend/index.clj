@@ -18,14 +18,14 @@
   [{:keys [proxy-prefix] :as conf} negotiated-language]
   (let [proxied    #(str proxy-prefix %)
         proxied-cb (comp cb proxied)]
-    [:html {:lang "da"}
+    [:html {:lang (or negotiated-language "da")}
      [:head
       [:meta {:charset "utf-8"}]
       [:meta {:name    "viewport"
               :content "width=device-width, initial-scale=1.0"}]
       [:title (str (when bshared/development? "(dev) ") "Clarin TEI")]
-      [:link {:rel "icon" :href (proxied-cb "/images/favicon.svg")}]
-      [:link {:rel "mask-icon" :href (proxied-cb "/images/favicon.svg") :color "#a02c2c"}]
+      #_[:link {:rel "icon" :href (proxied-cb "/images/favicon.svg")}]
+      #_[:link {:rel "mask-icon" :href (proxied-cb "/images/favicon.svg") :color "#a02c2c"}]
       [:link {:rel "preconnect" :href "https://rsms.me/"}]
       [:link {:rel "stylesheet" :href "https://rsms.me/inter/inter.css"}]
       [:link {:rel "stylesheet" :href (proxied-cb "/css/main.css")}]
