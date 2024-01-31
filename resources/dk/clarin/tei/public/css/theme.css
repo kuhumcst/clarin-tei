@@ -1,6 +1,6 @@
 :root {
     /* Defaults. */
-    --background: #FFF url(/images/texture/groovepaper.png);
+    --background: white;
     --border: 1px solid #666;
     --border-some: 1px solid #666;
     --border-subtle: 1px solid #AAA;
@@ -34,14 +34,12 @@
     --grid-64: 64px;
 
     /* Variations. */
-    --background-darker: #EDEAE8 url(/images/texture/asfalt-dark.png);
     --box-shadow-hidden: 0 0 0 0 rgba(0,0,0,0);
     --box-shadow-elevated: 0 8px 8px rgba(0,0,0,0.2);
     --box-shadow-elevated-reverse: 0 -8px 8px rgba(0,0,0,0.2);
     --color-subtle: #AAA;
     --color-very-subtle: #DDD;
     --font-family-heading: 'Computer Modern Concrete', sans-serif;
-    --font-family-metadata: "Lucida Console", Monaco, monospace;
     --font-size-s: 12px;
     --font-size-l: 18px;
     --inactive-filter: brightness(0.9);
@@ -57,12 +55,4 @@
     --padding-xl: 32px;
     --padding-xxl: 48px;
     --transparent-border: 1px solid transparent;
-
-    /* Transformations. */
-    --transform-elevated: scale(1.04);
-
-    /* Custom. */
-    --tab-background-1: #ffc92e url(/images/texture/natural-paper.png); /* yellow */
-    --tab-background-2: #ff663c url(/images/texture/natural-paper.png); /* red */
-    --tab-background-3: #779eff url(/images/texture/natural-paper.png); /* blue */
 }
