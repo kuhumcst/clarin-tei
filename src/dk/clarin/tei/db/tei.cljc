@@ -74,9 +74,10 @@
 
 (defn century
   [date-str]
-  (some-> (re-find year-re date-str)
-          (parse-long)
-          (quot 100)))
+  (when date-str
+    (some-> (re-find year-re date-str)
+            (parse-long)
+            (quot 100))))
 
 (defn document-triples
   [filename {:keys [facsimile author editor publisher date dk5 translators] :as result}]
@@ -89,10 +90,11 @@
         cent      (century date')
         cent-id   (str "#c" cent)
         cent-name (str cent "00-tallet")
-        dk5-index (-> (first dk5)
-                      (get 'dk5)
-                      (->> (re-find #"^[\d-.]+")
-                           (str "#dk5")))]
+        dk5-index (when (not (empty? dk5))
+                    (-> (first dk5)
+                        (get 'dk5)
+                        (->> (re-find #"^[\d-.]+")
+                             (str "#dk5"))))]
     (with-meta
       (disj
         (reduce
