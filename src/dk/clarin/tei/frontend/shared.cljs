@@ -11,11 +11,14 @@
             [dk.cst.stucco.pattern :as stp]
             [dk.clarin.tei.frontend.i18n :as i18n]))
 
+(def proxied
+  state/proxied)
+
 (defn backend-url
   [url]
   (if state/development?
     (str "http://localhost:6789" url)
-    url))
+    (proxied url)))
 
 (defn -surname-first
   [s]
@@ -193,7 +196,7 @@
                     (tr ::entity-caption))
            :key   v}
        (when-let [img-src (some-> v id->type sd/entity-types :img-src)]
-         [:img.entity-icon {:src img-src :alt ""}])
+         [:img.entity-icon {:src (proxied img-src) :alt ""}])
        (if-let [attribute (?condition-tr tr v)]
          attribute
          (shared/local-name (get id->name v v)))]

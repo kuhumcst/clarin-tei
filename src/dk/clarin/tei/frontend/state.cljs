@@ -9,6 +9,10 @@
   (when (exists? js/inDevelopmentEnvironment)
     js/inDevelopmentEnvironment))
 
+(defonce proxy-prefix
+  (when (exists? js/proxyPrefix)
+    js/proxyPrefix))
+
 (defonce language
   (r/atom
     (if-let [previously-specified (cookie/get-raw :language)]
@@ -19,6 +23,10 @@
 
 (defonce fetches
   (r/atom #{}))
+
+(defn proxied
+  [url]
+  (str proxy-prefix url))
 
 ;; To avoid having multiple modals in succession after multiple bad API fetches,
 ;; additional modals will be blocked until the route changes.

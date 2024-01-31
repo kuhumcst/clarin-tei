@@ -9,18 +9,18 @@
             [time-literals.read-write :as tl]
             [dk.cst.stucco.util.css :as css]
             [dk.clarin.tei.frontend.i18n :as i18n]
-            [dk.clarin.tei.frontend.shared :as fshared]
+            [dk.clarin.tei.frontend.shared :as fshared :refer [proxied]]
             [dk.clarin.tei.frontend.state :as state :refer [db]]
             [dk.clarin.tei.frontend.page.privacy :as privacy]
             [dk.clarin.tei.frontend.page.search :as search]
             [dk.clarin.tei.frontend.page.reader :as reader]))
 
 (def routes
-  [["/tei/privacy"
+  [[(proxied "/tei/privacy")
     {:name  ::privacy/page
      :title ::privacy
      :page  privacy/page}]
-   ["/tei/search"
+   [(proxied "/tei/search")
     {:name  ::search/page
      :title search/page-title
      :page  search/page
@@ -29,7 +29,7 @@
                    (do
                      (search/?query-reset!)
                      (fshared/set-title! (search/page-title)))))}]
-   ["/tei/search/:kind"
+   [(proxied "/tei/search/:kind")
     {:name  ::search/index-page
      :title (fn [m]
               (search/?query-reset!)
@@ -37,11 +37,11 @@
                    (keyword "entity.type")
                    ((i18n/->tr))))
      :page  search/page}]
-   ["/tei/reader"
+   [(proxied "/tei/reader")
     {:name  ::reader/preview
      :title ::local-reader
      :page  reader/page}]
-   ["/tei/reader/:document"
+   [(proxied "/tei/reader/:document")
     {:name  ::reader/page
      :title (fn [m]
               (get-in m [:path-params :document]))
@@ -121,7 +121,7 @@
           [:nav
            [:a {:href "https://github.com/kuhumcst/clarin-tei"}
             "Github"]
-           [:a {:href "/tei/privacy"}
+           [:a {:href (proxied "/tei/privacy")}
             (tr ::privacy)]
            [:a {:href "https://www.was.digst.dk/clarin-dk"}
             (tr ::a11y)]]]]

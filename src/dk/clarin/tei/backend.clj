@@ -18,10 +18,12 @@
 (defn clarin-tei-routes
   "Most of the routing happens on the frontend inside the SPA; the API routes
    are the exception."
-  [conf]
-  (let [redirect-to-search [(fn [_] {:status  301
-                                     :headers {"Location" "/tei/search"}})]
-        spa-chain          [endpoints/lang-neg index/handler]]
+  [{:keys [proxy-prefix] :as conf}]
+  (let [redirect-to-search [(fn [_]
+                              (let [location (str proxy-prefix "/tei/search")]
+                                {:status  301
+                                 :headers {"Location" location}}))]
+        spa-chain          [endpoints/lang-neg (index/->handler conf)]]
 
     ;; These first few routes all lead to the SPA
     #{["/" :get redirect-to-search :route-name ::root]

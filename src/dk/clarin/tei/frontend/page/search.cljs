@@ -7,7 +7,7 @@
             [dk.clarin.tei.static-data :as sd]
             [dk.clarin.tei.frontend :as-alias frontend]
             [dk.clarin.tei.frontend.i18n :as i18n]
-            [dk.clarin.tei.frontend.shared :as fshared]
+            [dk.clarin.tei.frontend.shared :as fshared :refer [proxied]]
             [dk.clarin.tei.frontend.state :as state]
             [dk.clarin.tei.frontend.api :as api]
             [dk.clarin.tei.shared :as shared]))
@@ -450,7 +450,7 @@
                                     :style {:position "relative"}
                                     :title entity-label}
            (when img-src
-             [:img.entity-icon {:src img-src
+             [:img.entity-icon {:src (proxied img-src)
                                 :alt entity-label}])
            [:select.search-form__item-select {:on-change ->set-rel
                                               :value     (rel->s k)}
@@ -500,7 +500,7 @@
            [:div.input-row
             [:label.search-form__item-connection {:for "v"}
              (if (empty? items)
-               [:img.search-icon {:src "/images/search.svg"}]
+               [:img.search-icon {:src (proxied "/images/search.svg")}]
                "＋")]
             [:input {:type          "list"
                      :list          "names"
@@ -580,7 +580,7 @@
                               :href     (fshared/reader-href name)}
                    (fshared/break-str title)
                    [:img.action__icon
-                    {:src "/images/external-link-svgrepo-com.svg"}]]
+                    {:src (proxied "/images/external-link-svgrepo-com.svg")}]]
         kvs       (concat [[:document/title hyperlink]]
                           (select-keys entity sd/search-result-rels))]
     [fshared/metadata-table tr search-state entity kvs]))

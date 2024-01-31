@@ -9,7 +9,8 @@ RUN apt-get clean && \
     openjdk-17-jdk \
     curl \
     rlwrap \
-    locales
+    locales \
+    sed
 
 # Fix emojis not showing up on HTML pages
 # https://medium.com/quiq-blog/handling-emoticons-or-other-unicode-characters-beware-of-docker-images-f0f11673dac4
@@ -43,9 +44,16 @@ RUN clojure -A:backend -Spath
 COPY ./shadow-cljs.edn /etc/clarin-tei/shadow-cljs.edn
 RUN shadow-cljs --aliases :frontend classpath
 
-# Create a release build of the frontend app
+# Prepare frontend app source files
 COPY ./src /etc/clarin-tei/src
 COPY ./resources /etc/clarin-tei/resources
+
+# the CSS files are patched up beforehand to match the "/clarin" proxy-prefix
+WORKDIR /etc/clarin-tei/resources/dk/clarin/tei/public/css
+RUN sed -i 's!/images!/clarin/images!g' *.css
+WORKDIR /etc/clarin-tei
+
+#  Create a release build of the frontend app
 RUN shadow-cljs --aliases :frontend release app
 
 # Build an uberjar for the backend
