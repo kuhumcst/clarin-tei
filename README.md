@@ -52,3 +52,16 @@ location /clarin {
 ```
 
 This will proxy requests to the CLARIN TEI web service running on localhost:6789.
+
+## Debugging
+For whatever reason it might be necessary to debug the Docker container in production.
+
+To stop and rebuild the Docker image from scratch with visible terminal output:
+
+```shell
+# run these as a superuser
+cd /etc/clarin-tei/clarin-tei/docker
+systemctl stop clarin-tei
+CLARIN_TEI_FILES_DIR=/etc/clarin-tei/files docker-compose build --no-cache
+systemctl start clarin-tei
+```
